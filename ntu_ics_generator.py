@@ -37,15 +37,18 @@ def generate_ics_file(FILE_NAME,START_DATE):
                 j = 3
             elif modules_list[i][m][11] == "Fri":
                 j = 4        
-            day = modules_list[i][m][11]
+
+            if modules_list[i][m][7] == "Waitlist" or modules_list[i][m][7] == "*Exempted":
+                continue
+            #day = modules_list[i][m][11]
 
             date = startday + timedelta(days=(7*(i-1))+j)
 
             time = modules_list[i][m][12]
 
-            mod_name = modules_list[i][m][0]
+            #mod_name = modules_list[i][m][0]
 
-            week = modules_list[i][m][-2]
+            #week = modules_list[i][m][-2]
             #print(f'{mod_name} - - - {day} - - - {time} - - - {date} - - - {week}')
 
             summary = modules_list[i][m][0] + " " + modules_list[i][m][1]

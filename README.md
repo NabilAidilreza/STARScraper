@@ -15,6 +15,6 @@
 
  # NOTE #
  DO RENAME FILE to "STARS_{placeholder}.html" so program can run.
- Categories have been set to course code
+ Categories have been set to respective course code. (e.g Category -> IE1005 [Metadata])
 
  If you are going to color code, go to the calender app (Outlook, Google Calendar) to set the color to the course code (i.e IE1005)

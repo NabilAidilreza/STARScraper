@@ -14,7 +14,7 @@
  Make sure all files are under the same directory.
 
  # NOTE #
- DO RENAME YOUR HTML FILE to "STARS_{placeholder}.html" so program can run.
+ DO RENAME YOUR HTML FILE to "STARS_{placeholder}.html" and change generate_ics_file var to correct file name so program can run.
 
  DO CHANGE Start Date (14/08/2023) such that it will follow the correct calendar sequence based on which sem you are in. (i.e Freshmen Sem 2 -> 15 Jan 2024 etc)
  

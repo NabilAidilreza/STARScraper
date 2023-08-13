@@ -13,7 +13,7 @@ def read_html_file(file_name):
     # Construct the file path by joining the script directory and the file name
     file_path = os.path.join(script_directory, file_name)
     # Open the file in read mode and specify the encoding as utf-8
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, 'r', encoding='windows-1252') as file:
         # Read the content of the file
         html_content = file.read()
         # Return the HTML content

@@ -7,7 +7,7 @@
  To download required libraries on your own computer. e.g icalendar, bs4, etc.
 
  # INSTRUCTIONS #
- Download your version of STARS Planner HTML and all 3 python files.
+ Download your version of STARS Planner HTML and all 3 python files. \n
  Open menu.py and run generate_ics_file("STARS_TIM.html","14/08/2023") to generate the file
 
  # NOTE #

@@ -20,4 +20,4 @@
  
  Categories have been set to respective course code. (e.g Category -> IE1005 [Metadata])
 
- If you are going to color code, go to the calender app (Outlook, Google Calendar) to set the color to the course code (i.e IE1005)
+ If you are going to color code, go to the calender app (Outlook) to set the color to the course code (i.e IE1005 -> Blue Category)

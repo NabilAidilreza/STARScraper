@@ -5,3 +5,6 @@
 
  Only available in Python.
  To download required libraries on your own computer. e.g icalendar, bs4, etc.
+
+
+ DO RENAME FILE to "STARS_{placeholder}.html" so program can run.

@@ -16,7 +16,7 @@
  # NOTE #
  DO RENAME YOUR HTML FILE to "STARS_{placeholder}.html" so program can run.
 
- DO CHANGE Start Date (14/08/2023) such that it will follow the correct calendar sequence based on which sem you are in. (I.E Freshmen Sem 2 -> 15 Jan 2024 etc)
+ DO CHANGE Start Date (14/08/2023) such that it will follow the correct calendar sequence based on which sem you are in. (i.e Freshmen Sem 2 -> 15 Jan 2024 etc)
  
  Categories have been set to respective course code. (e.g Category -> IE1005 [Metadata])
 

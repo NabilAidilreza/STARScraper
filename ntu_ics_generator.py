@@ -53,7 +53,7 @@ def generate_ics_file(FILE_NAME,START_DATE):
 
             summary = modules_list[i][m][0] + " " + modules_list[i][m][1]
             location = modules_list[i][m][13]
-            description = "Class Type: " + modules_list[i][m][9] + "\n" + "Group: " + modules_list[i][m][10] + "\n" + "Remarks: " + f'Week {i}' + "\n" + "Exam: " + modules_list[i][m][15] + "\n" + "AUs: " + modules_list[i][m][2]
+            description = "Class Type: " + modules_list[i][m][9] + "\n" + "Index: " + modules_list[i][m][6] + "\n" + "Group: " + modules_list[i][m][10] + "\n" + "Remarks: " + f'Week {i}' + "\n" + "Exam: " + modules_list[i][m][15] + "\n" + "AUs: " + modules_list[i][m][2]
             dtstart = date + timedelta(hours=int(time.split("to")[0][:2]), minutes=int(time.split("to")[0][2:]))
             dtend = date + timedelta(hours=int(time.split("to")[1][:2]), minutes=int(time.split("to")[1][2:]))
             category = modules_list[i][m][0]

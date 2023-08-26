@@ -3,4 +3,5 @@
 beautifulsoup4==4.11.1
 icalendar==5.0.7
 openpyxl==3.0.9
+prettytable==3.8.0
 x-wr-timezone==0.0.5

@@ -42,7 +42,10 @@ def generate_ics_file(FILE_NAME,START_DATE):
                 continue
             #day = modules_list[i][m][11]
 
-            date = startday + timedelta(days=(7*(i-1))+j)
+            if i >= 8:
+                date = startday + timedelta(days=(7*(i))+j)
+            else:
+                date = startday + timedelta(days=(7*(i-1))+j)
 
             time = modules_list[i][m][12]
 

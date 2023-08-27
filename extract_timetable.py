@@ -29,7 +29,7 @@ def process_html_to_data(FILE_NAME):
     # Parse the HTML content using BeautifulSoup
     soup = BeautifulSoup(html_content, 'html.parser')
     # Find the main content section of the HTML
-    mainContent = soup.find_all('tbody')[3]
+    mainContent = soup.find_all('table')[3]
     # Find all the rows in the main content section
     content_Rows = mainContent.find_all('tr')
     # Iterate over each row in the content_Rows list

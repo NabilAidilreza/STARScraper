@@ -1,8 +1,6 @@
 from extract_timetable import create_timetable_list
 from prettytable import *
 
-TIMETABLES_TO_COMPARE = ["STARS_1.html","STARS_2.html","STARS_3.html","STARS_4.html"]
-
 def compare_grp_timetables(file_name_array,wk_num):
     NUMBER_OF_PPL = len(file_name_array)
     teaching_wk = "Teaching Wk" + str(wk_num)
@@ -17,6 +15,20 @@ def compare_grp_timetables(file_name_array,wk_num):
                     "16":8,
                     "17":9,
                     "18":10}
+    DATES = {1:'14/8/23 to 18/8/23',
+            2:'21/8/23 to 25/8/23',
+            3:'28/8/23 to 1/9/2023',
+            4:'4/9/23 to 8/9/2023',
+            5:'11/9/23 to 15/9/23',
+            6:'18/9/23 to 22/9/23',
+            7:'25/9/23 to 29/9/23',
+            0:'2/10/23 to 6/10/2023', # RECESS WEEK
+            8:'9/10/23 to 13/10/23',
+            9:'16/10/23 to 20/10/23',
+            10:'23/10/23 to 27/10/23',
+            11:'30/10/23 to 3/11/2023',
+            12:'6/11/23 to 10/11/2023',
+            13:'13/11/23 to 17/11/2023'}
     DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]
     PERIODS = ["0830to0920", "0930to1020", "1030to1120", "1130to1220", "1230to1320", "1330to1420", "1430to1520", "1530to1620", "1630to1720", "1730to1820","1830to1920"]
     lst = []
@@ -109,7 +121,7 @@ def compare_grp_timetables(file_name_array,wk_num):
         return x
 
     print("*-----------------------------------------------------------*")
-    print("                     TEACHING WEEK " + str(wk_num))
+    print("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num])
     print("*-----------------------------------------------------------*\n")
     for i in range(len(WEEK)):
         x = create_pretty_table()
@@ -124,27 +136,22 @@ def compare_grp_timetables(file_name_array,wk_num):
         print(DAYS[i])
         print(x)
         print("\n")
+        
+### REFERENCES ###
 
-# Execute Code #
-compare_grp_timetables(TIMETABLES_TO_COMPARE,3)
-
-
-
-    ### REFERENCES ###
-
-    # Course No 1
-    # Title 2
-    # AU 3
-    # CourseType 4
-    # S/U Grade option 5
-    # GERType 6
-    # IndexNumber 7
-    # Status 8
-    # Choice 9
-    # ClassType 10
-    # Group 11
-    # Day 12
-    # Time 13
-    # Venue 14
-    # Remark 15
-    # Exam 16
+# Course No 1
+# Title 2
+# AU 3
+# CourseType 4
+# S/U Grade option 5
+# GERType 6
+# IndexNumber 7
+# Status 8
+# Choice 9
+# ClassType 10
+# Group 11
+# Day 12
+# Time 13
+# Venue 14
+# Remark 15
+# Exam 16

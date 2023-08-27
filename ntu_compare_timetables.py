@@ -120,6 +120,11 @@ def compare_grp_timetables(file_name_array,wk_num):
         x.field_names = file_name_array
         return x
 
+    f = open("WEEK_" + str(wk_num) + "_TABLE.txt","w")
+    f.write("*-----------------------------------------------------------*\n")
+    f.write("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num] + "\n")
+    f.write("*-----------------------------------------------------------*\n\n")
+
     print("*-----------------------------------------------------------*")
     print("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num])
     print("*-----------------------------------------------------------*\n")
@@ -134,8 +139,11 @@ def compare_grp_timetables(file_name_array,wk_num):
         for n, _ in enumerate(x._rows): 
             x._rows[n].insert(0, PERIODS[n]) 
         print(DAYS[i])
+        f.write(DAYS[i]+"\n")
+        f.write(x.get_string() + '\n\n')
         print(x)
         print("\n")
+    f.close()
         
 ### REFERENCES ###
 

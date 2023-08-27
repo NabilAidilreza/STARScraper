@@ -13,7 +13,7 @@ Only available in Python. To download required libraries on your own computer. e
 
 ## Instructions
 
-Download your version of STARS Planner HTML and all 3 python files.
+Download your version of STARS Planner HTML (& your friends, if applicable) and all python files.
 
 Make sure all files are under the same directory.
 
@@ -22,7 +22,14 @@ Open *menu.py* and run
 ```bash
   generate_ics_file("STARS_NAME.html","14/08/2023")
 ```
-to generate the file.
+to generate the calender file.
+
+run
+```bash
+  TIMETABLES_TO_COMPARE = ["STARS_NAME.html","STARS_NAME1",...]
+  compare_grp_timetables(TIMETABLES_TO_COMPARE,3)
+```
+to generate text table output for comparison (> 1 STARS HTML file required)
 
 ## IMPORTANT
 

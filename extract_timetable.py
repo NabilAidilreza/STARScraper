@@ -1,7 +1,6 @@
 import os
 from bs4 import BeautifulSoup
 import csv
-import re
 import openpyxl
 from openpyxl.styles import PatternFill, Font
 
@@ -56,7 +55,7 @@ def process_html_to_data(FILE_NAME):
     table[-1][-1] = ""
 
     # Return the table data
-    print("Reading HTML...")
+    #print("Reading HTML...")
     # Output raw data in list form #
     return table
 
@@ -97,7 +96,7 @@ def process_data(FILE_NAME):
     file_name = FILE_NAME
     table = []
     table = process_html_to_data(file_name)
-    print("Converting into sorted array...")
+    #print("Converting into sorted array...")
     # Fill up blanks #
     for i in range(len(table)):
         for m in range(len(table[i])):
@@ -131,21 +130,34 @@ def further_process_data(table):
     extra_table = []
     to_duplicate = []
     extract_table = course_table[1:]
-    print("Preparing data for timetable format...")
+    #print("Preparing data for timetable format...")
     # Create duplicates for sorting by week purposes #
     for i in range(len(extract_table)):
         temp = extract_table[i][14].strip("Teaching Wk").split("-")
-        if len(temp) != 1:
+        if len(temp) == 2:
             to_duplicate.append([i,int(temp[0]),int(temp[1])])
+        else:
+            to_duplicate.append([i,0,temp])
 
     # Adjust duplicates #
     for d in to_duplicate:
-        to_add = [extract_table[d[0]]] * (d[2]-d[1]+1)
+        #to_add = [extract_table[d[0]]] * (d[2]-d[1]+1)
         temp = []
-        for m in range(d[1],d[2]+1):
-            temp_course = extract_table[d[0]]
-            temp.append(temp_course[:14] + ["Teaching Wk"+str(m)] + temp_course[15:])
-        extra_table.append(temp)
+        if d[1] != 0:
+            for m in range(d[1],d[2]+1):
+                temp_course = extract_table[d[0]]
+                temp.append(temp_course[:14] + ["Teaching Wk"+str(m)] + temp_course[15:])
+            extra_table.append(temp)
+        else:
+            # Non standard case #
+            # Odd week / even week only #
+            # not in seq (i.e 1,4,7,10) #
+            if d[2] == ['']:
+                d[2] = ['1']
+            for i in range(len(d[2])):
+                temp_course = extract_table[d[0]]
+                temp.append(temp_course[:14] + ["Teaching Wk"+str(d[2][i])] + temp_course[15:])
+            extra_table.append(temp)
 
     main_table = []
     
@@ -169,7 +181,6 @@ def further_process_data(table):
 
     # Clean table #
     course_info = [course for course in course_info if all(course)]
-    
     # Sort by Week -> Day -> Time #
     sorted_array = sorted(course_info, key=lambda x: (get_week_from_remark(x[14]), get_day_number(x[11]), x[12]))
     sorted_array.insert(0,course_table[0])
@@ -192,7 +203,7 @@ def further_process_data(table):
 
     # Clear empty list at the start #
     del final_array[0]
-    print("Finalizing final array...")
+    #print("Finalizing final array...")
     return final_array
 
 def write_timetable_to_csv(data,raw_data):

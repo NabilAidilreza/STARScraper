@@ -14,7 +14,11 @@ def compare_grp_timetables(file_name_array,wk_num):
                     "15":7,
                     "16":8,
                     "17":9,
-                    "18":10}
+                    "18":10,
+                    "19":11,
+                    "20":12,
+                    "21":13,
+                    "22":14}
     DATES = {1:'14/8/23 to 18/8/23',
             2:'21/8/23 to 25/8/23',
             3:'28/8/23 to 1/9/2023',
@@ -30,7 +34,7 @@ def compare_grp_timetables(file_name_array,wk_num):
             12:'6/11/23 to 10/11/2023',
             13:'13/11/23 to 17/11/2023'}
     DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]
-    PERIODS = ["0830to0920", "0930to1020", "1030to1120", "1130to1220", "1230to1320", "1330to1420", "1430to1520", "1530to1620", "1630to1720", "1730to1820","1830to1920"]
+    PERIODS = ["0830to0920", "0930to1020", "1030to1120", "1130to1220", "1230to1320", "1330to1420", "1430to1520", "1530to1620", "1630to1720", "1730to1820","1830to1920","1930to2020","2030to2120","2130to2220"]
     lst = []
     # Extract all tables #
     for file in file_name_array:
@@ -40,11 +44,11 @@ def compare_grp_timetables(file_name_array,wk_num):
         lst.append(temp)
         #print("Moving to next file...")
     # Set up day tables #
-    MONDAY = [["" for _ in range(11)] for _ in range(NUMBER_OF_PPL)]
-    TUESDAY = [["" for _ in range(11)] for _ in range(NUMBER_OF_PPL)]
-    WEDNESDAY = [["" for _ in range(11)] for _ in range(NUMBER_OF_PPL)]
-    THURSDAY = [["" for _ in range(11)] for _ in range(NUMBER_OF_PPL)]
-    FRIDAY = [["" for _ in range(11)] for _ in range(NUMBER_OF_PPL)]
+    MONDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
+    TUESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
+    WEDNESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
+    THURSDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
+    FRIDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY]
 
     for i in range(len(lst)):
@@ -119,7 +123,6 @@ def compare_grp_timetables(file_name_array,wk_num):
         x = PrettyTable()
         x.field_names = file_name_array
         return x
-
     f = open("WEEK_" + str(wk_num) + "_TABLE.txt","w")
     f.write("*-----------------------------------------------------------*\n")
     f.write("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num] + "\n")

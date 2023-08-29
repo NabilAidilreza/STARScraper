@@ -36,13 +36,13 @@ def compare_grp_timetables(file_name_array,wk_num):
     DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]
     PERIODS = ["0830to0920", "0930to1020", "1030to1120", "1130to1220", "1230to1320", "1330to1420", "1430to1520", "1530to1620", "1630to1720", "1730to1820","1830to1920","1930to2020","2030to2120","2130to2220"]
     lst = []
+    print("Reading files...")
     # Extract all tables #
     for file in file_name_array:
-        #print("File: " + file)
         temp = create_timetable_list(file)
         temp.pop(0)
         lst.append(temp)
-        #print("Moving to next file...")
+        print("File: " + file + " -> success!")
     # Set up day tables #
     MONDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     TUESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
@@ -50,7 +50,7 @@ def compare_grp_timetables(file_name_array,wk_num):
     THURSDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     FRIDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY]
-
+    print("\nComparing tables...")
     for i in range(len(lst)):
         for week in lst[i]:
             for item in week:
@@ -119,6 +119,7 @@ def compare_grp_timetables(file_name_array,wk_num):
                                     start_index += 1
                             else:
                                 WEEK[4][i][start_index] = item[0] + " " + item[9]
+    print("Generating comparison chart...")
     def create_pretty_table():
         x = PrettyTable()
         x.field_names = file_name_array
@@ -127,10 +128,6 @@ def compare_grp_timetables(file_name_array,wk_num):
     f.write("*-----------------------------------------------------------*\n")
     f.write("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num] + "\n")
     f.write("*-----------------------------------------------------------*\n\n")
-
-    print("*-----------------------------------------------------------*")
-    print("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num])
-    print("*-----------------------------------------------------------*\n")
     for i in range(len(WEEK)):
         x = create_pretty_table()
         transposed_data = list(map(list, zip(*WEEK[i])))
@@ -141,12 +138,13 @@ def compare_grp_timetables(file_name_array,wk_num):
         x._valign[fieldname] = 't' 
         for n, _ in enumerate(x._rows): 
             x._rows[n].insert(0, PERIODS[n]) 
-        print(DAYS[i])
         f.write(DAYS[i]+"\n")
         f.write(x.get_string() + '\n\n')
-        print(x)
-        print("\n")
     f.close()
+    print("\n\n !!! SUCCESS !!! \n\n")
+    print("Txt file created... -> WEEK_" + str(wk_num) + "_TABLE.txt\n")
+
+
         
 ### REFERENCES ###
 

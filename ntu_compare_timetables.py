@@ -1,5 +1,24 @@
 from extract_timetable import create_timetable_list
 from prettytable import *
+import re
+
+def check_venue(char):
+    pattern = r'\((.*?)\)'
+    common_term = re.search(pattern,char)
+    if common_term != None:
+        venue = common_term.group(0)
+        if "The " in venue:
+            venue = venue.replace("The ","")
+    else:
+        pattern = r'^.*?-'
+        common_term = re.search(pattern,char)
+        if common_term !=  None:
+            venue = "(" + common_term.group(0)[:-1] + ")"
+        else:
+            venue = '-'
+
+    return venue
+
 
 def compare_grp_timetables(file_name_array,wk_num):
     NUMBER_OF_PPL = len(file_name_array)
@@ -54,6 +73,8 @@ def compare_grp_timetables(file_name_array,wk_num):
     for i in range(len(lst)):
         for week in lst[i]:
             for item in week:
+                # Display formatting #
+                result = item[0] + " " + (item[9][:3] if item[9] == "Lec/Stu" else item[9]) + " " + check_venue(item[13])
                 #if item[14] == "Teaching Wk1":
                 if item[14] == teaching_wk:
                     if item[11] == "Mon":
@@ -67,10 +88,10 @@ def compare_grp_timetables(file_name_array,wk_num):
                             # Add mod to correct period #
                             if period_num >= 2:
                                 for m in range(period_num):
-                                    WEEK[0][i][start_index] = item[0] + " " + item[9]
+                                    WEEK[0][i][start_index] = result
                                     start_index += 1
                             else:
-                                WEEK[0][i][start_index] = item[0] + " " + item[9]
+                                WEEK[0][i][start_index] = result
                     if item[11] == "Tue":
                         startstamp = item[12][:2]
                         endstamp = item[12][6:8]
@@ -79,10 +100,10 @@ def compare_grp_timetables(file_name_array,wk_num):
                             start_index = time_periods[startstamp]
                             if period_num >= 2:
                                 for m in range(period_num):
-                                    WEEK[1][i][start_index] = item[0] + " " + item[9]
+                                    WEEK[1][i][start_index] = result
                                     start_index += 1
                             else:
-                                WEEK[1][i][start_index] = item[0] + " " + item[9]
+                                WEEK[1][i][start_index] = result
                     if item[11] == "Wed":
                         startstamp = item[12][:2]
                         endstamp = item[12][6:8]
@@ -91,10 +112,10 @@ def compare_grp_timetables(file_name_array,wk_num):
                             start_index = time_periods[startstamp]
                             if period_num >= 2:
                                 for m in range(period_num):
-                                    WEEK[2][i][start_index] = item[0] + " " + item[9]
+                                    WEEK[2][i][start_index] = result
                                     start_index += 1
                             else:
-                                WEEK[2][i][start_index] = item[0] + " " + item[9]
+                                WEEK[2][i][start_index] = result
                     if item[11] == "Thu":
                         startstamp = item[12][:2]
                         endstamp = item[12][6:8]
@@ -103,10 +124,10 @@ def compare_grp_timetables(file_name_array,wk_num):
                             start_index = time_periods[startstamp]
                             if period_num >= 2:
                                 for m in range(period_num):
-                                    WEEK[3][i][start_index] = item[0] + " " + item[9]
+                                    WEEK[3][i][start_index] = result
                                     start_index += 1
                             else:
-                                WEEK[3][i][start_index] = item[0] + " " + item[9]
+                                WEEK[3][i][start_index] = result
                     if item[11] == "Fri":
                         startstamp = item[12][:2]
                         endstamp = item[12][6:8]
@@ -115,10 +136,10 @@ def compare_grp_timetables(file_name_array,wk_num):
                             start_index = time_periods[startstamp]
                             if period_num >= 2:
                                 for m in range(period_num):
-                                    WEEK[4][i][start_index] = item[0] + " " + item[9]
+                                    WEEK[4][i][start_index] = result
                                     start_index += 1
                             else:
-                                WEEK[4][i][start_index] = item[0] + " " + item[9]
+                                WEEK[4][i][start_index] = result
     print("Generating comparison chart...")
     def create_pretty_table():
         x = PrettyTable()

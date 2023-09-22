@@ -7,6 +7,9 @@ Generates an .ics file (calendar file) to use on Outlook / Google Calendar for b
 Compare STARS timetable between people / friends.
 
 
+
+
+
 ## Disclaimer
 
 Only work for Sem 1 (for now), unsure how html will change. (Im a freshman)

@@ -1,21 +1,16 @@
 
 # NTU_Timetable_Generator
 
-## Purpose
-
-Generates an .ics file (calendar file) to use on Outlook / Google Calendar for better viewing.
-Compare STARS timetable between people / friends.
-
-
-
-
-
 ## Disclaimer
 
 Only work for Sem 1 (for now), unsure how html will change. (Im a freshman)
 
 Only available in Python. To download required libraries on your own computer. e.g icalendar, bs4, etc.
 
+## Purpose
+
+Generates an .ics file (calendar file) to use on Outlook / Google Calendar for better viewing.
+Compare STARS timetable between people / friends.
 
 ## Instructions
 
@@ -53,9 +48,4 @@ Categories have been set to respective course code. (e.g Category -> IE1005 [Met
 
 If you are going to color code, go to the calender app (Outlook) to set the color to the course code (i.e IE1005 -> Blue Category)
 
-
-## Functions
-
-- Generate .ics file
-- Compare timetables (text table)
 

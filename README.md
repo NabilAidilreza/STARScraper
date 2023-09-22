@@ -1,7 +1,10 @@
 
 # NTU_Timetable_Generator
 
+## Purpose
+
 Generates an .ics file (calendar file) to use on Outlook / Google Calendar for better viewing.
+Compare STARS timetable between people / friends.
 
 
 ## Disclaimer

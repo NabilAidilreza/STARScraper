@@ -1,0 +1,9 @@
+checkmods - Check mods in current semester
+
+checktoday - Check today's agenda
+
+checkweekly - Check current week schedule
+
+checkweek - Provide week number to check given week schedule
+
+genicsfile - Converts STARS HTML to ics file to export to calendar app

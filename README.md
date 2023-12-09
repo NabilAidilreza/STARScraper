@@ -41,7 +41,7 @@ DO RENAME YOUR HTML FILE to "STARS_{placeholder}.html" and change generate_ics_f
 
 #### Start Date
 
-DO CHANGE Start Date (14/08/2023) such that it will follow the correct calendar sequence based on which sem you are in. (i.e Freshmen Sem 2 -> 15 Jan 2024 etc)
+DO CHANGE Start Date (e.g 14/08/2023) such that it will follow the correct calendar sequence based on which sem you are in. (i.e Freshmen Sem 2 -> 15 Jan 2024 etc)
 
 #### Color Coding
 

@@ -1,7 +1,8 @@
-from extract_timetable import create_timetable_list
+from hub import create_timetable_list
 from prettytable import *
 import re
 
+# Clean venue string via regex #
 def check_venue(char):
     pattern = r'\((.*?)\)'
     common_term = re.search(pattern,char)
@@ -16,10 +17,9 @@ def check_venue(char):
             venue = "(" + common_term.group(0)[:-1] + ")"
         else:
             venue = '-'
-
     return venue
 
-
+# Creates a txt file to compare schedules #
 def compare_grp_timetables(file_name_array,wk_num):
     NUMBER_OF_PPL = len(file_name_array)
     teaching_wk = "Teaching Wk" + str(wk_num)
@@ -38,6 +38,7 @@ def compare_grp_timetables(file_name_array,wk_num):
                     "20":12,
                     "21":13,
                     "22":14}
+    ### TO AUTOMATE ###
     DATES = {1:'14/8/23 to 18/8/23',
             2:'21/8/23 to 25/8/23',
             3:'28/8/23 to 1/9/2023',
@@ -52,6 +53,10 @@ def compare_grp_timetables(file_name_array,wk_num):
             11:'30/10/23 to 3/11/2023',
             12:'6/11/23 to 10/11/2023',
             13:'13/11/23 to 17/11/2023'}
+    ###
+    # For day indexing #
+    dayref = ["Mon","Tue","Wed","Thu","Fri"]
+    # For printing #
     DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]
     PERIODS = ["0830to0920", "0930to1020", "1030to1120", "1130to1220", "1230to1320", "1330to1420", "1430to1520", "1530to1620", "1630to1720", "1730to1820","1830to1920","1930to2020","2030to2120","2130to2220"]
     lst = []
@@ -75,72 +80,25 @@ def compare_grp_timetables(file_name_array,wk_num):
             for item in week:
                 # Display formatting #
                 result = item[0] + " " + (item[9][:3] if item[9] == "Lec/Stu" else item[9]) + " " + check_venue(item[13])
-                #if item[14] == "Teaching Wk1":
-                if item[14] == teaching_wk:
-                    if item[11] == "Mon":
-                        startstamp = item[12][:2]
-                        endstamp = item[12][6:8]
-                        #print(item[12],item[0])
-                        # Determine num of period slots per module #
-                        period_num = time_periods[endstamp]-time_periods[startstamp]
-                        if startstamp in time_periods:
-                            start_index = time_periods[startstamp]
-                            # Add mod to correct period #
-                            if period_num >= 2:
-                                for m in range(period_num):
-                                    WEEK[0][i][start_index] = result
-                                    start_index += 1
-                            else:
-                                WEEK[0][i][start_index] = result
-                    if item[11] == "Tue":
-                        startstamp = item[12][:2]
-                        endstamp = item[12][6:8]
-                        period_num = time_periods[endstamp]-time_periods[startstamp]
-                        if startstamp in time_periods:
-                            start_index = time_periods[startstamp]
-                            if period_num >= 2:
-                                for m in range(period_num):
-                                    WEEK[1][i][start_index] = result
-                                    start_index += 1
-                            else:
-                                WEEK[1][i][start_index] = result
-                    if item[11] == "Wed":
-                        startstamp = item[12][:2]
-                        endstamp = item[12][6:8]
-                        period_num = time_periods[endstamp]-time_periods[startstamp]
-                        if startstamp in time_periods:
-                            start_index = time_periods[startstamp]
-                            if period_num >= 2:
-                                for m in range(period_num):
-                                    WEEK[2][i][start_index] = result
-                                    start_index += 1
-                            else:
-                                WEEK[2][i][start_index] = result
-                    if item[11] == "Thu":
-                        startstamp = item[12][:2]
-                        endstamp = item[12][6:8]
-                        period_num = time_periods[endstamp]-time_periods[startstamp]
-                        if startstamp in time_periods:
-                            start_index = time_periods[startstamp]
-                            if period_num >= 2:
-                                for m in range(period_num):
-                                    WEEK[3][i][start_index] = result
-                                    start_index += 1
-                            else:
-                                WEEK[3][i][start_index] = result
-                    if item[11] == "Fri":
-                        startstamp = item[12][:2]
-                        endstamp = item[12][6:8]
-                        period_num = time_periods[endstamp]-time_periods[startstamp]
-                        if startstamp in time_periods:
-                            start_index = time_periods[startstamp]
-                            if period_num >= 2:
-                                for m in range(period_num):
-                                    WEEK[4][i][start_index] = result
-                                    start_index += 1
-                            else:
-                                WEEK[4][i][start_index] = result
+                week = item[14]
+                if week == teaching_wk:
+                    day = item[11]
+                    day_index = dayref.index(day)
+                    startstamp = item[12][:2]
+                    endstamp = item[12][6:8]
+                    # Determine num of period slots per module #
+                    period_num = time_periods[endstamp]-time_periods[startstamp]
+                    if startstamp in time_periods:
+                        start_index = time_periods[startstamp]
+                        # Add mod to correct period #
+                        if period_num >= 2:
+                            for m in range(period_num):
+                                WEEK[day_index][i][start_index] = result
+                                start_index += 1
+                        else:
+                            WEEK[day_index][i][start_index] = result
     print("Generating comparison chart...")
+    # Print and create txt file #
     def create_pretty_table():
         x = PrettyTable()
         x.field_names = file_name_array
@@ -165,10 +123,7 @@ def compare_grp_timetables(file_name_array,wk_num):
     print("\n\n !!! SUCCESS !!! \n\n")
     print("Txt file created... -> WEEK_" + str(wk_num) + "_TABLE.txt\n")
 
-
-        
 ### REFERENCES ###
-
 # Course No 1
 # Title 2
 # AU 3

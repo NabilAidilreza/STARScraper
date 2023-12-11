@@ -1,19 +1,26 @@
-from hub import create_timetable_list
+from ntu_hub import create_timetable_list
 from prettytable import *
 import re
 
 # Clean venue string via regex #
 def check_venue(char):
+    # Regular expression pattern to match text within parentheses
     pattern = r'\((.*?)\)'
-    common_term = re.search(pattern,char)
+    # Find the first occurrence of the pattern in the input string
+    common_term = re.search(pattern, char)
     if common_term != None:
+        # Get the matched text
         venue = common_term.group(0)
         if "The " in venue:
-            venue = venue.replace("The ","")
+            # Remove "The " from the venue name
+            venue = venue.replace("The ", "")
     else:
+        # Regular expression pattern to match text before a hyphen
         pattern = r'^.*?-'
-        common_term = re.search(pattern,char)
-        if common_term !=  None:
+        # Find the first occurrence of the pattern in the input string
+        common_term = re.search(pattern, char)
+        if common_term != None:
+            # Add parentheses around the matched text
             venue = "(" + common_term.group(0)[:-1] + ")"
         else:
             venue = '-'

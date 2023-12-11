@@ -2,8 +2,33 @@ checkmods - Check mods in current semester
 
 checktoday - Check today's agenda
 
-checkweekly - Check current week schedule
+checkweekly - Check current week
 
-checkweek - Provide week number to check given week schedule
+genicsfile - Converts to calendar file
 
-genicsfile - Converts STARS HTML to ics file to export to calendar app
+checkweek1 - Check week 1
+
+checkweek2 - Check week 2
+
+checkweek3 - Check week 3
+
+checkweek4 - Check week 4
+
+checkweek5 - Check week 5
+
+checkweek6 - Check week 6
+
+checkweek7 - Check week 7
+
+checkweek8 - Check week 8
+
+checkweek9 - Check week 9
+
+checkweek10 - Check week 10
+
+checkweek11 - Check week 11
+
+checkweek12 - Check week 12
+
+checkweek13 - Check week 13
+

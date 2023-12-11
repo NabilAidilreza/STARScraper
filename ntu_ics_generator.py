@@ -3,7 +3,7 @@ import uuid
 from icalendar import Calendar, Event
 import x_wr_timezone
 from datetime import datetime,timedelta
-from hub import create_timetable_list
+from ntu_hub import create_timetable_list
 
 # Generates an ics file #
 def generate_ics_file(FILE_NAME,START_DATE):

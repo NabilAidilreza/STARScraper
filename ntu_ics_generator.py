@@ -40,6 +40,8 @@ def generate_ics_file(FILE_NAME,START_DATE):
                 date = startday + timedelta(days=(7*(i-1))+j)
             # Prep data for each mod #
             time = modules_list[i][m][12]
+            if "-" in time:
+                time = time.replace("-","to")
             summary = modules_list[i][m][0] + " " + modules_list[i][m][1]
             location = modules_list[i][m][13]
             description = "Class Type: " + modules_list[i][m][9] + "\n" + "Index: " + modules_list[i][m][6] + "\n" + "Group: " + modules_list[i][m][10] + "\n" + "Remarks: " + f'Week {i}' + "\n" + "Exam: " + modules_list[i][m][15] + "\n" + "AUs: " + modules_list[i][m][2]

@@ -1,6 +1,7 @@
 from ntu_hub import create_timetable_list
 from prettytable import *
 import re
+from ntu_extract_timetable import generate_timeline
 
 # Clean venue string via regex #
 def check_venue(char):
@@ -24,10 +25,15 @@ def check_venue(char):
             venue = "(" + common_term.group(0)[:-1] + ")"
         else:
             venue = '-'
+        if "LHS" in char:
+            venue = "(Hive)"
+        else:
+            if "LHN" in char:
+                venue = "(Arc)"
     return venue
 
 # Creates a txt file to compare schedules #
-def compare_grp_timetables(file_name_array,wk_num):
+def compare_grp_timetables(file_name_array,wk_num,start_date):
     NUMBER_OF_PPL = len(file_name_array)
     teaching_wk = "Teaching Wk" + str(wk_num)
     time_periods = {"08":0,
@@ -45,29 +51,20 @@ def compare_grp_timetables(file_name_array,wk_num):
                     "20":12,
                     "21":13,
                     "22":14}
-    ### TO AUTOMATE ###
-    DATES = {1:'14/8/23 to 18/8/23',
-            2:'21/8/23 to 25/8/23',
-            3:'28/8/23 to 1/9/2023',
-            4:'4/9/23 to 8/9/2023',
-            5:'11/9/23 to 15/9/23',
-            6:'18/9/23 to 22/9/23',
-            7:'25/9/23 to 29/9/23',
-            0:'2/10/23 to 6/10/2023', # RECESS WEEK
-            8:'9/10/23 to 13/10/23',
-            9:'16/10/23 to 20/10/23',
-            10:'23/10/23 to 27/10/23',
-            11:'30/10/23 to 3/11/2023',
-            12:'6/11/23 to 10/11/2023',
-            13:'13/11/23 to 17/11/2023'}
+    timeline = generate_timeline(start_date)
+    DATES = {}
+    for i in range(len(timeline)):
+        if i == 0:
+            continue
+        else:
+            DATES[i] = timeline[i-1][0] + " to " + timeline[i-1][-2]
     ###
     # For day indexing #
-    dayref = ["Mon","Tue","Wed","Thu","Fri"]
+    dayref = ["Mon","Tue","Wed","Thu","Fri","Sat"]
     # For printing #
-    DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]
+    DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"]
     PERIODS = ["0830to0920", "0930to1020", "1030to1120", "1130to1220", "1230to1320", "1330to1420", "1430to1520", "1530to1620", "1630to1720", "1730to1820","1830to1920","1930to2020","2030to2120","2130to2220"]
     lst = []
-    print("Reading files...")
     # Extract all tables #
     for file in file_name_array:
         temp = create_timetable_list(file)
@@ -80,8 +77,9 @@ def compare_grp_timetables(file_name_array,wk_num):
     WEDNESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     THURSDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     FRIDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
-    WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY]
-    print("\nComparing tables...")
+    SATURDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
+    WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY]
+    #print("\nComparing tables...")
     for i in range(len(lst)):
         for week in lst[i]:
             for item in week:
@@ -91,8 +89,11 @@ def compare_grp_timetables(file_name_array,wk_num):
                 if week == teaching_wk:
                     day = item[11]
                     day_index = dayref.index(day)
-                    startstamp = item[12][:2]
-                    endstamp = item[12][6:8]
+                    datetime = item[12]
+                    if "-" in datetime:
+                        datetime = datetime.replace("-","to")
+                    startstamp = datetime[:2]
+                    endstamp = datetime[6:8]
                     # Determine num of period slots per module #
                     period_num = time_periods[endstamp]-time_periods[startstamp]
                     if startstamp in time_periods:
@@ -104,13 +105,18 @@ def compare_grp_timetables(file_name_array,wk_num):
                                 start_index += 1
                         else:
                             WEEK[day_index][i][start_index] = result
-    print("Generating comparison chart...")
+    #print("Generating comparison chart...")
     # Print and create txt file #
+    lst = []
+    for name in file_name_array:
+        name = name.split("_")[2]
+        lst.append(name)
     def create_pretty_table():
         x = PrettyTable()
-        x.field_names = file_name_array
+        x.field_names = lst
         return x
-    f = open("WEEK_" + str(wk_num) + "_TABLE.txt","w")
+    file_name = "comparison_tables\WEEK_" + str(wk_num) + "_TABLE.txt"
+    f = open(file_name,"w")
     f.write("*-----------------------------------------------------------*\n")
     f.write("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num] + "\n")
     f.write("*-----------------------------------------------------------*\n\n")
@@ -129,6 +135,7 @@ def compare_grp_timetables(file_name_array,wk_num):
     f.close()
     print("\n\n !!! SUCCESS !!! \n\n")
     print("Txt file created... -> WEEK_" + str(wk_num) + "_TABLE.txt\n")
+    return file_name
 
 ### REFERENCES ###
 # Course No 1

@@ -128,15 +128,129 @@ def further_process_data(table):
                 weeklist += list(range(*[int(x)+i for i,x in enumerate(ele.split('-'))]))
             else:
                 weeklist += [int(ele)]
-        to_duplicate.append([i,weeklist])
+        # temp = extract_table[i][14].strip("Teaching Wk")#.split("-")
+        # check_range = temp.split("-")
+        # split_lst = []
+        # if len(check_range) == 2 and "," not in check_range[1]:
+        #     ranges = temp.split("-")
+        #     split_lst.append(ranges)
+        #     split_lst.append(0)
+        #     #print("Is simple range")
+        # elif len(check_range) == 1:
+        #     check_odds_evens = temp.split(",")
+        #     if len(check_odds_evens) == 1:
+        #         #print("Is one week")
+        #         split_lst.append(0)
+        #         split_lst.append(check_odds_evens)
+        #     else:
+        #         split_lst.append(0)
+        #         split_lst.append(check_odds_evens)
+        #         #print("Is evens odds")
+        # else:
+        #     #print("Is complex")
+        #     # Code to check what is a range and what is a standalone week #
+        #     count_index = 0
+        #     range_count = 0
+        #     while count_index < len(temp):
+        #         if temp[count_index] == "-":
+        #             if range_count == 0:
+        #                 # Is a range num b4 and after
+        #                 if temp[count_index+2].isnumeric():
+        #                     split_lst.append([temp[count_index-1],temp[count_index+1:count_index+3]])
+        #                     temp = temp[:count_index-1] + temp[count_index+3:]
+        #                     count_index = 0
+        #                 else:
+        #                     split_lst.append([temp[count_index-1],temp[count_index+1]])
+        #                     temp = temp[:count_index-1] + temp[count_index+1:]
+        #                     count_index = 0
+        #             else:
+        #                 if temp[count_index+2].isnumeric():
+        #                     split_lst.append([temp[count_index-1],temp[count_index+1:count_index+3]])
+        #                     temp = temp[:count_index-1] + temp[count_index+3:]
+        #                     count_index = 0
+        #                 else:
+        #                     split_lst.append([temp[count_index-1],temp[count_index+1]])
+        #                     temp = temp[:count_index-1] + temp[count_index+1:]
+        #                     count_index = 0
+        #             range_count += 1
+        #         count_index += 1
+        #     cleaned = temp.split(",")
+        #     new_filter = list(filter(None, cleaned))
+        #     split_lst.append(new_filter)
+        # print(split_lst)
+        # if split_lst[0] == 0: # Individual weeks
+        #     to_duplicate.append([i,0,split_lst[1]])
+        # elif split_lst[1] == 0: # Simple Range weeks
+        #     to_duplicate.append([i,int(split_lst[0][0]),int(split_lst[0][1])])
+        # else: # both
+        #     if len(split_lst) == 2:
+        #         if split_lst[0][-1] == split_lst[1][0]:
+        #             split_lst[1] = split_lst[1][1:]
+        #         to_duplicate.append([i,0,split_lst[-1]])
+        #         to_duplicate.append([i,int(split_lst[0][0]),int(split_lst[0][1])])
+        #     else:
+        #     # Last item is always separate weeks
+        #         end = split_lst[-1]
+        #         end_list = []
+        #         for i in range(0,len(split_lst)):
+        #             if i == 0 or i == len(split_lst)-1:
+        #                 continue
+        #             else:
+        #                 num1,num2 = split_lst[i]
+        #                 temp = []
+        #                 for m in range(int(num1),int(num2)+1):
+        #                     temp.append(str(m))
+        #                 end += temp
+        #         num3,num4 = split_lst[0]
+        #         temp = []
+        #         for m in range(int(num3),int(num4)+1):
+        #             temp.append(str(m))
+        #         end += temp       
+        #         end_list = list(set(end))
+        #         end_list.sort(key = int)
+        #         to_duplicate.append([i,0,end_list])
+        # if len(temp) == 2: # Range of a to b
+        #    to_duplicate.append([i,int(temp[0]),int(temp[1])])
+        #    print([i,int(temp[0]),int(temp[1])])
+        # else:
+        #    to_duplicate.append([i,0,temp])
+        #    print([i,0,temp])
+        to_duplicate.append([i,0,weeklist])
+        # if len(weeklist) == 2: # Range of a to b
+        #    to_duplicate.append([i,int(temp[0]),int(temp[1])])
+        #    print([i,int(temp[0]),int(temp[1])])
+        # else:
+        #    to_duplicate.append([i,0,temp])
+        #    print([i,0,temp])
     # Adjust duplicates #
     for d in to_duplicate:
         temp = []
-        for i in range(len(d[1])):
-            temp_course = extract_table[d[0]]
-            temp.append(temp_course[:14] + ["Teaching Wk"+str(d[1][i])] + temp_course[15:])
-        extra_table.append(temp)
+        if d[1] != 0:
+            for m in range(d[1],d[2]+1):
+                temp_course = extract_table[d[0]]
+                temp.append(temp_course[:14] + ["Teaching Wk"+str(m)] + temp_course[15:])
+            extra_table.append(temp)
+        else:
+            # Non standard case #
+            # Odd week / even week only #
+            # not in seq (i.e 1,4,7,10) #
+            if d[2] == ['']:
+                d[2] = ['1']
+            for i in range(len(d[2])):
+                temp_course = extract_table[d[0]]
+                temp.append(temp_course[:14] + ["Teaching Wk"+str(d[2][i])] + temp_course[15:])
+            extra_table.append(temp)
     main_table = []
+    # Add single week courses, ignore original duplicates #
+    counter = 0
+    while len(to_duplicate) > 0:
+        if counter == to_duplicate[0][0]:
+            del to_duplicate[0]
+        if counter >= len(extract_table):
+            break
+        else:
+            main_table.append(extract_table[counter])
+        counter += 1
     # Combine all list #
     for e in extra_table:
         for m in e:
@@ -144,7 +258,18 @@ def further_process_data(table):
     course_info = main_table
     # Clean table #
     course_info = [course for course in course_info if all(course)]
+    # Standarize Wk Symbols #
+    # for i in range(len(course_info)):
+    #     for m in range(len(course_info[i])):
+    #         if "," in  course_info[i][m]:
+    #             course_info[i][m] = course_info[i][m].replace(",","-")
     # Sort by Week -> Day -> Time #
+    track_indexes = []
+    for course in course_info:
+        if "-" in course[14] or "," in course[14]:
+            track_indexes.append(course_info.index(course))
+    if len(track_indexes) != 0:
+        course_info = course_info[track_indexes[-1]+1:]
     sorted_array = sorted(course_info, key=lambda x: (get_week_from_remark(x[14]), get_day_number(x[11]), x[12]))
     sorted_array.insert(0,course_table[0])
     # Break up into different sets (by week) #
@@ -164,6 +289,7 @@ def further_process_data(table):
         same_week_list = []
     # Clear empty list at the start #
     del final_array[0]
+
     return final_array
 
 # Creates a python list, fully sorted and cleaned #
@@ -410,7 +536,7 @@ def pretty_print(mod_dict):
     pretty = json.dumps(mod_dict, indent=4)
     print(pretty)
 
-### Getters For NTU Module Info (TELEGRAM BOT) ###
+### Getters For NTU Module Info ###
 
 # ALL MUST RETURN STRING #
 def get_all_mods(ldict):

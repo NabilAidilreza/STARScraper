@@ -5,6 +5,8 @@ import x_wr_timezone
 from datetime import datetime,timedelta
 from ntu_hub import create_timetable_list
 
+#! FILE THAT MANAGES ICS FILE CREATION #
+
 # Generates an ics file #
 def generate_ics_file(FILE_NAME,START_DATE):
     # Requires file name (STAR Planner Html) & first day of first teaching week of semester #

@@ -2,7 +2,9 @@ import os
 import telebot
 from datetime import datetime
 from ntu_hub import create_timetable_list, compile_mods, get_today, get_weekly, get_all_mods, combine_NTU_dict
-from ntu_hub import generate_timeline, check_what_week_day, generate_ics_file
+from ntu_hub import generate_timeline, check_what_week_day
+from ntu_ics_generator import generate_ics_file
+from ntu_compare_timetables import compare_grp_timetables
 import requests
 from sqlalchemy import Column, Integer, Unicode, String
 from sqlalchemy.types import JSON
@@ -12,7 +14,8 @@ from sqlalchemy.ext.mutable import MutableDict
 
 # Telegram bot startup #
 API_KEY = open("TELEGRAM_API_KEY.txt","rb").readline().decode("utf-8")
-bot = telebot.TeleBot(API_KEY, parse_mode=None)
+PASSCODE = open("TELEGRAM_BOT_PASSCODE.txt","rb").readline().decode("utf-8")
+bot = telebot.TeleBot(API_KEY, parse_mode=None, threaded=False)
 
 # Set up class for Users #
 Base = declarative_base()
@@ -24,6 +27,7 @@ class User(Base):
     last_name = Column(Unicode(40))
     start_date = Column(String(20))
     mod_dict = Column(MutableDict.as_mutable(JSON))
+    passcode = Column(String(20))
 
     def __init__(self, chat_id, first_name, last_name):
         self.chat_id = chat_id
@@ -31,6 +35,7 @@ class User(Base):
         self.last_name = last_name
         self.start_date = ""
         self.mod_dict = {}
+        self.passcode = ""
 
     # Getters / Setters #
     def getusername(self):
@@ -41,11 +46,14 @@ class User(Base):
         return self.start_date
     def get_mod_dict(self):
         return self.mod_dict
+    def get_passcode(self):
+        return self.passcode
     def set_start_date(self,value):
         self.start_date = value
     def set_mod_dict(self,value):
         self.mod_dict = value
-
+    def set_passcode(self,value):
+        self.passcode = value
 
 # Connect to db #
 def get_connection():
@@ -55,7 +63,7 @@ Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 
 ### STARTING PROMPT ###
-@bot.message_handler(commands=['start','help','commands'])
+@bot.message_handler(commands=['start'])
 def start(message):
     # Connect to DB #
     db = Session()
@@ -66,9 +74,24 @@ def start(message):
         db.add(curr_user)
         db.commit()
         bot.send_message(message.chat.id,"Welcome: {}".format(curr_user.getusername()))
+        bot.send_message(message.chat.id,"Please provide the passcode to proceed: ", reply_markup = telebot.types.ForceReply(selective=False))
     else:
         curr_user = check_user
         bot.send_message(message.chat.id,"Welcome back: {}".format(curr_user.getusername()))
+        bot.send_message(message.chat.id, "If you are a returning user and would like to check another STARS file, pls send new start date and html.\n")
+        mod_dict = curr_user.get_mod_dict()
+        if mod_dict != {}:
+            file_name = mod_dict["file_name"]
+            bot.send_message(message.chat.id, "Last file registered: " + file_name)
+        commands(message)
+    db.close()
+
+@bot.message_handler(commands=['help'])
+def help(message):
+    bot.send_message(message.chat.id,"If new date was submitted but data didnt not change, send bot start date again, FOLLOWED by the same html\nBot will regen data properly upon receiving the info in correct order.")
+
+@bot.message_handler(commands=['commands'])
+def commands(message):
     bot.send_message(message.chat.id, "------ NTU Stars Bot ------\n\
 Main functions: Display mod info, check day/week schedules, generate calendar file."+\
 "\n\nCommands:\n\
@@ -77,24 +100,40 @@ Main functions: Display mod info, check day/week schedules, generate calendar fi
 3. /checkweekly\n\
 4. /checkweek ?\n\
 5. /genicsfile\n\
-6. /help | /start | /commands\n")
-    db.close()
+6. /help | /start | /commands\n")     
     # Check required data #
     if verify_empty_data_set(message):
         prepdata(message)
-        send_sample_html(message)   
-        
+        send_sample_html(message)    
 ### INITIALIZATION PROMPTS ###
 @bot.message_handler(commands=['prepdata'])
 def prepdata(message):
-    bot.send_message(message.chat.id, "If you are a returning user and would like to check another STARS file, pls send new start date and html.\n")
-    bot.send_message(message.chat.id, "Provide your semester start date FIRST. (based on the STARS you will be sending)(i.e 14/08/2023)")
-    bot.send_message(message.chat.id, "Then provide your STARs for initialisation.\n(HTML format)(rename to STARS_YourName.html)")
+    bot.send_message(message.chat.id,"Provide required data in correct order below.\n")
+    bot.send_message(message.chat.id, "Provide your semester start date FIRST. (based on the STARS you will be sending)(i.e 15/01/2024)")
+    bot.send_message(message.chat.id, "Provide your STARs SECOND for initialisation.\n(HTML format)(rename to STARS_YourName.html)")
 
 def send_sample_html(message):
     doc = open('samples\STARS_SAMPLE.html', 'rb')
     bot.send_document(message.chat.id, doc)
     bot.send_message(message.chat.id, "Required sample of STARS Planner.")
+
+### Function to check if passcode submitted ###
+def check_passcode(message):
+    temp = message.text
+    if len(temp) == 5 and temp == PASSCODE:
+        return True
+    else:
+        return False
+
+@bot.message_handler(func=check_passcode,content_types=['text'])
+def lock_passcode(message):
+    db = Session()
+    curr_user = db.query(User).filter(User.chat_id == message.chat.id).first()
+    curr_user.set_passcode(PASSCODE)
+    db.commit()
+    db.close()
+    bot.send_message(message.chat.id,"Correct passcode. Bot functions will now be unlocked.")
+    commands(message)
 
 ### Function to extract start date ###
 def checksubmissionofSTARTDATE(message):
@@ -157,6 +196,15 @@ def filteroutStars(message):
     bot.send_message(message.chat.id,"Data verified. Ready for actions.")
 
 ### EVENT CHECKERS ###
+def verify_passcode_data(message):
+    db = Session()
+    curr_user = db.query(User).filter(User.chat_id == message.chat.id).first()
+    db.close()
+    if curr_user.get_passcode() == PASSCODE and curr_user.get_mod_dict() != {}:
+        return False
+    else:
+        return True
+    
 def verify_empty_data_set(message):
     db = Session()
     curr_user = db.query(User).filter(User.chat_id == message.chat.id).first()
@@ -166,7 +214,7 @@ def verify_empty_data_set(message):
         return True
     else:
         return False
-
+    
 def verify_missing_start_date(message):
     db = Session()
     curr_user = db.query(User).filter(User.chat_id == message.chat.id).first()
@@ -178,9 +226,13 @@ def verify_missing_start_date(message):
         return False
 
 ### ERROR CHECKERS ###
+@bot.message_handler(func=verify_passcode_data, content_types=['text'])
+def handle_access(message):
+	bot.send_message(message.chat.id,"Access denied. Either passcode not given or html data not received yet.")
+
 @bot.message_handler(func=verify_empty_data_set, content_types=['text'])
 def handle_html_doc(message):
-	bot.send_message(message.chat.id,"STARS not initialized yet!!!")
+	bot.send_message(message.chat.id,"Error. STARS not initialized yet!!!")
 
 ### HANDLERS ###
 @bot.message_handler(commands=["checkmods"])
@@ -237,5 +289,28 @@ def gen_ics_file(message):
     bot.send_document(message.chat.id, doc)
     bot.send_message(message.chat.id, "Success!!! Click on the file to add to your chosen calendar app.")
     
+@bot.message_handler(commands=['compareschedules_wk2', 'compareschedules_wk3', 'compareschedules_wk4', 'compareschedules_wk5', 'compareschedules_wk6', 'compareschedules_wk7', 'compareschedules_wk8', 'compareschedules_wk9', 'compareschedules_wk10', 'compareschedules_wk11', 'compareschedules_wk12', 'compareschedules_wk13'])
+def compare_schedules(message):
+    db = Session()
+    curr_user = db.query(User).filter(User.chat_id == message.chat.id).first()
+    db.close()
+    lst = []
+    num_of_files = 0
+    directory = 'submitted_htmls'
+    for filename in os.listdir(directory):
+        f = os.path.join(directory, filename)
+        if os.path.isfile(f):
+            lst.append(f)
+            num_of_files += 1
+    if num_of_files < 3:
+        bot.send_message(message.chat.id, "Not enough data. Get more users to initialize...")
+    else:
+        week_num = int(message.text.replace("/compareschedules_wk",""))
+        start_date = curr_user.get_start_date()
+        file_name = compare_grp_timetables(lst,week_num,start_date)
+        doc = open(file_name, 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, "Success!!! View the txt file for this week comparison.")
+
 ### LISTENING... ###
 bot.infinity_polling()

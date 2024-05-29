@@ -7,6 +7,8 @@ import json
 from datetime import datetime,timedelta
 import re
 
+#! FILE THAT MANAGES ALL BASIC FUNCTIONS OF PROJECT #
+
 ### HTML Reader Functions ###
 
 # Opens and read html content from html file #

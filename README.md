@@ -3,8 +3,6 @@
 
 ## Disclaimer
 
-Only work for Sem 1 (for now), unsure how html will change. (Im a freshman)
-
 Only available in Python. To download required libraries on your own computer. e.g icalendar, bs4, etc.
 
 ## Purpose
@@ -19,7 +17,7 @@ Download your version of STARS Planner HTML (& your friends, if applicable) and 
 
 Make sure all files are under the same directory.
 
-Open *menu.py* and run  
+Open *local_commands.py* and run  
 
 ```bash
   generate_ics_file("STARS_NAME.html","14/08/2023")
@@ -28,7 +26,7 @@ to generate the calender file.
 
 run
 ```bash
-  TIMETABLES_TO_COMPARE = ["STARS_NAME.html","STARS_NAME1",...]
+  TIMETABLES_TO_COMPARE = ["STARS_NAME.html","STARS_NAME1.html",...]
   compare_grp_timetables(TIMETABLES_TO_COMPARE,3)
 ```
 to generate text table output for comparison (> 1 STARS HTML file required)

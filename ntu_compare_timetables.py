@@ -51,7 +51,7 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
             return "Not a HTML file."
         else:
             try:
-                testname = file_name.split("_")[2]
+                testname = file_name.split("_")
                 return ""
             except:
                 return "Incorrect format. (Follow recommended format)"
@@ -193,7 +193,7 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
             lst = []
             table.add_column("Period",style="orange_red1",justify="center")
             for name in file_name_array:
-                col_name = name.split("_")[2]
+                col_name = name.split("_")[1]
                 table.add_column(col_name,style="cyan",justify="center")
             return table
         for i in range(len(WEEK)):
@@ -211,7 +211,7 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
         # Print and create txt file #
         lst = []
         for name in file_name_array:
-            name = name.split("_")[2]
+            name = name.split("_")[1]
             lst.append(name)
         def create_pretty_table():
             x = PrettyTable()

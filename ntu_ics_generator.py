@@ -5,15 +5,61 @@ import x_wr_timezone
 from datetime import datetime,timedelta
 from ntu_hub import create_timetable_list
 
+from rich import print
+from rich.table import Table
+from rich.console import Console
+from rich.theme import Theme
+
 #! FILE THAT MANAGES ICS FILE CREATION #
 
 # Generates an ics file #
-def generate_ics_file(FILE_NAME,START_DATE):
+def generate_ics_file(FILE_NAME,START_DATE,userich=False):
+    #? Error Checkers #
+    def check_file_name(file_name):
+        if "_" not in file_name:
+            return "Incorrect format. (No underscore in name)"
+        elif ".html" not in file_name:
+            return "Not a HTML file."
+        else:
+            try:
+                testname = file_name.split("_")
+                return ""
+            except:
+                return "Incorrect file format. (Follow recommended format)"
+    def check_date(string):
+        try:
+            from datetime import datetime
+            date = datetime.strptime(string, '%d/%M/%Y')
+            return ""
+        except ValueError:
+            return "Use correct format. (DD/MM/YYYY)"
+        
+    #? Main function #
+    #* Python Rich Init if Used #
+    if userich:
+        custom_theme = Theme({"success":"bold green","error":"bold red","alert":"bold orange_red1"})
+        console = Console(theme=custom_theme,record=True)
+
+    name_check = check_file_name(FILE_NAME)
+    if name_check != "":
+        console.print("Program exited..",style="error") if userich else print("Program exited.")
+        console.print("Reason: " + name_check,style="alert") if userich else print("Reason: " + name_check)
+        return
+    date_check = check_date(START_DATE)
+    if date_check != "":
+        console.print("Program exited.",style="error") if userich else print("Program exited.")
+        console.print("Reason: " + date_check,style="alert") if userich else print("Reason: " + date_check)
+        return
+    
     # Requires file name (STAR Planner Html) & first day of first teaching week of semester #
-    modules_list = create_timetable_list(FILE_NAME)
+    try:
+        modules_list = create_timetable_list(FILE_NAME)
+    except ValueError:
+        console.print("[error]Error occurred.[/error]\n[error]Program exited.[/error]") if userich else print("Error occurred.\nProgram exited.")
+    
     SD = START_DATE.split("/")
     startday = datetime(int(SD[-1]), int(SD[1][1]) if SD[1][0] == "0" else int(SD[1]), int(SD[0]), 0, 0, 0)   
-    #print("Preparing calendar...")
+    console.print("Preparing calender file...",style="success") if userich else print("Preparing calender file...")
     # Create a new calendar #
     cal = Calendar()
     # Set calendar metadata #
@@ -21,7 +67,7 @@ def generate_ics_file(FILE_NAME,START_DATE):
     cal.add('version', '2.0')
     cal.add('NAME', 'NTU Course Timetable')
     cal.add('X-WR-CALNAME', 'NTU Course Timetable')
-    #print("Adding courses...")
+    console.print("Extracting modules...",style="bold blue") if userich else print("Extracting modules...")
     dayref = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
     for i in range(len(modules_list)):
         # Fix Indexing (Wk1-13) #
@@ -66,6 +112,7 @@ def generate_ics_file(FILE_NAME,START_DATE):
             event.add('dtend', dtend)
             event.add('categories', [category])
             cal.add_component(event)
+    console.print("Writing calendar to .ics file...",style="bold yellow") if userich else print("Writing calendar to .ics file...")
     #print("Writing calendar to .ics file...")
     # Save the calendar to an .ics file
     with open('in.ics', 'wb') as f:
@@ -80,9 +127,10 @@ def generate_ics_file(FILE_NAME,START_DATE):
     os.remove('in.ics')
     # Get the absolute path of the saved file
     main_dir = os.path.dirname(os.path.abspath(FINAL_FILE_NAME))
-    os.replace(main_dir+"/"+FINAL_FILE_NAME, main_dir+"/calendars/"+FINAL_FILE_NAME)
+    final_dir = main_dir+"\\calendars\\"+FINAL_FILE_NAME
+    os.replace(main_dir+"/"+FINAL_FILE_NAME, final_dir)
+    console.print(f"[success]Calender file has been created.[/success] \n[alert]File is saved here:[/alert] {final_dir}",style="bold yellow") if userich else print(f"Calender file has been created. \nFile is saved here: {final_dir}")
     return FINAL_FILE_NAME
-    #print("Calender file has been created. \n File is saved here: " + absolute_path + " :::")
 
     ### REFERENCE CODE ###
     # Create an event #

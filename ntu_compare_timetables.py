@@ -3,11 +3,12 @@ from prettytable import *
 import re
 from ntu_extract_timetable import generate_timeline
 
+
+
 from rich import print
 from rich.table import Table
 from rich.console import Console
 from rich.theme import Theme
-
 
 #! FILE THAT MANAGES LOCAL TABLE COMPARISON #
 
@@ -42,9 +43,53 @@ def check_venue(char):
 
 # Creates a txt file to compare schedules #
 def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
+    #? Error Checkers #
+    def check_file_name(file_name):
+        if "_" not in file_name:
+            return "Incorrect format. (No underscore in name)"
+        elif ".html" not in file_name:
+            return "Not a HTML file."
+        else:
+            try:
+                testname = file_name.split("_")[2]
+                return ""
+            except:
+                return "Incorrect format. (Follow recommended format)"
+    def check_wk_num(wk_num):
+        try:
+            wk_num = int(wk_num)
+            if wk_num > 13:
+                return "Week number more than 13."
+            if wk_num == 0:
+                return "Zero value."
+            return ""
+        except:
+            return "Not a number."
+    def check_date(string):
+        try:
+            from datetime import datetime
+            date = datetime.strptime(string, '%d/%M/%Y')
+            return ""
+        except ValueError:
+            return "Use correct format. (DD/MM/YYYY)"
+        
+    #? Main function #
+    #* Python Rich Init if Used #
     if userich:
         custom_theme = Theme({"success":"bold green","error":"bold red","alert":"bold orange_red1"})
         console = Console(theme=custom_theme,record=True)
+
+    check_two = check_wk_num(wk_num)
+    check_three = check_date(start_date)
+    if check_two != "":
+        console.print("Program exited.",style="error") if userich else print("Program exited.")
+        console.print("Reason: " + check_two,style="alert") if userich else print("Reason: " + check_two)
+        return
+    if check_three != "":
+        console.print("Program exited.",style="error") if userich else print("Program exited.")
+        console.print("Reason: " + check_three,style="alert") if userich else print("Reason: " + check_three)
+        return
+
     NUMBER_OF_PPL = len(file_name_array)
     teaching_wk = "Teaching Wk" + str(wk_num)
     time_periods = {"08":0,
@@ -62,29 +107,48 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
                     "20":12,
                     "21":13,
                     "22":14}
-    timeline = generate_timeline(start_date)
+
+    try:
+        timeline = generate_timeline(start_date)
+    except ValueError:
+        console.print("[error]Error occurred:[/error]" + "[alert] Unknown date string![/alert]\n[error]Exiting program...[/error]") if userich else print("Error occurred: Unknown date string!\nExiting program...")
+    
     DATES = {}
     for i in range(len(timeline)):
         if i == 0:
             continue
         else:
             DATES[i] = timeline[i-1][0] + " to " + timeline[i-1][-2]
-    ###
+
     # For day indexing #
     dayref = ["Mon","Tue","Wed","Thu","Fri","Sat"]
     # For printing #
     DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"]
     PERIODS = ["0830to0920", "0930to1020", "1030to1120", "1130to1220", "1230to1320", "1330to1420", "1430to1520", "1530to1620", "1630to1720", "1730to1820","1830to1920","1930to2020","2030to2120","2130to2220"]
     lst = []
+
+    # #! TEST CASE #
+    # file_name_array[3] = "YIKES_html"
+    # #! --------- #
+
     # Extract all tables #
+    errorList = []
     for file in file_name_array:
-        temp = create_timetable_list(file)
-        temp.pop(0)
-        lst.append(temp)
-        if userich:
-            console.print("File: " + file + " -> [success]success![/success]")
-        else:
-            print("File: " + file + " -> success!")
+        try:
+            temp = create_timetable_list(file)
+            temp.pop(0)
+            lst.append(temp)
+            console.print("File: " + file + " -> [success]success![/success]") if userich else print("File: " + file + " -> success!")
+        except Exception:
+            console.print("File: " + file + " -> [error]error![/error]") if userich else print("File: " + file + " -> error!")
+            errorList.append(file)
+    if len(errorList) != 0:
+        for errorFile in errorList:
+            file_name_array.remove(errorFile)
+            console.print("File: " + errorFile + " removed from stack.",style="alert") if userich else print("File: " + errorFile + " removed from stack.")
+            console.print("Reason: " + check_file_name(errorFile),style="alert") if userich else print("Reason: " + check_file_name(errorFile))
+
+            
     # Set up day tables #
     MONDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     TUESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
@@ -93,7 +157,8 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
     FRIDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     SATURDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY]
-    #print("\nComparing tables...")
+    
+    #? Sorting data #
     for i in range(len(lst)):
         for week in lst[i]:
             for item in week:
@@ -119,7 +184,8 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
                                 start_index += 1
                         else:
                             WEEK[day_index][i][start_index] = result
-    #print("Generating comparison chart...")
+    
+    #? Create chart #
     if userich:
         console.print(f"\n\nTeaching Week {str(wk_num)} -> {DATES[wk_num]}")
         def setupTable(day):

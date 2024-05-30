@@ -42,6 +42,9 @@ def check_venue(char):
                 venue = "(Arc)"
     return venue
 
+def get_name(file_name):
+    return file_name.replace(".html","").split("_")[-1]
+     
 # Creates a txt file to compare schedules #
 def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
     #? Error Checkers #
@@ -124,10 +127,12 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
         else:
             DATES[i] = timeline[i-1][0] + " to " + timeline[i-1][-2]
 
-    # For day indexing #
-    dayref = ["Mon","Tue","Wed","Thu","Fri","Sat"]
-    # For printing #
-    DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"]
+    #? For day indexing #
+    dayref = ["Mon","Tue","Wed","Thu","Fri"]
+    # dayref = ["Mon","Tue","Wed","Thu","Fri","Sat"]
+    #? For printing #
+    DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]
+    # DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"]
     PERIODS = ["0830to0920", "0930to1020", "1030to1120", "1130to1220", "1230to1320", "1330to1420", "1430to1520", "1530to1620", "1630to1720", "1730to1820","1830to1920","1930to2020","2030to2120","2130to2220"]
     lst = []
 
@@ -160,12 +165,15 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
     WEDNESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     THURSDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     FRIDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
-    SATURDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
-    WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY]
+    # SATURDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
+    # WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY]
+
+    WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY]
 
     console.print("Sorting events...",style="process") if userich else print("Sorting events...")
     #? Sorting data #
     for i in range(len(lst)):
+        #? lst[i] => person items
         for week in lst[i]:
             for item in week:
                 # Display formatting #
@@ -190,6 +198,9 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
                                 start_index += 1
                         else:
                             WEEK[day_index][i][start_index] = result
+    #? Lunch Logic #
+    FREE = [{DAYS[_]:{}} for _ in range(len(DAYS))]
+    
     console.print("Creating chart...",style="process") if userich else print("Creating chart...")
     #? Create chart #
     if userich:
@@ -205,13 +216,15 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
         for i in range(len(WEEK)):
             table = setupTable(DAYS[i])
             transposed_data = list(map(list, zip(*WEEK[i])))
-            for i in range(len(transposed_data)):
-                row = transposed_data[i]
-                row.insert(0,PERIODS[i])
+            for m in range(len(transposed_data)):
+                row = transposed_data[m]
+                FREE[i][DAYS[i]][PERIODS[m]] = [get_name(file_name_array[i]) for i in range(len(row)) if row[i] == ""]
+                row.insert(0,PERIODS[m])
                 if len(errorList) != 0:
                     row = row[:-len(errorList)]
                 table.add_row(*row)
             console.print(table)
+        print(FREE)
         file_name = f"comparison_tables\WEEK_" + str(wk_num) + "_TABLE.txt"
         console.save_text(file_name)
         return file_name
@@ -248,6 +261,7 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
         print("\n\n !!! SUCCESS !!! \n\n")
         print("Txt file created... -> WEEK_" + str(wk_num) + "_TABLE.txt\n")
         return file_name
+
 
 ### REFERENCES ###
 # Course No 1

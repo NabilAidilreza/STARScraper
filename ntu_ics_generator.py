@@ -22,10 +22,11 @@ def generate_ics_file(FILE_NAME,START_DATE,userich=False):
             return "Not a HTML file."
         else:
             try:
-                testname = file_name.split("_")
+                file = open(file_name)
+                file.close()
                 return ""
             except:
-                return "Incorrect file format. (Follow recommended format)"
+                return "File not found."
     def check_date(string):
         try:
             from datetime import datetime
@@ -37,18 +38,18 @@ def generate_ics_file(FILE_NAME,START_DATE,userich=False):
     #? Main function #
     #* Python Rich Init if Used #
     if userich:
-        custom_theme = Theme({"success":"bold green","error":"bold red","alert":"bold orange_red1"})
+        custom_theme = Theme({"success":"bold green","error":"bold red","warning":"bold orange_red1","process":"blue_violet"})
         console = Console(theme=custom_theme,record=True)
 
     name_check = check_file_name(FILE_NAME)
     if name_check != "":
         console.print("Program exited..",style="error") if userich else print("Program exited.")
-        console.print("Reason: " + name_check,style="alert") if userich else print("Reason: " + name_check)
+        console.print("Reason: " + name_check,style="warning") if userich else print("Reason: " + name_check)
         return
     date_check = check_date(START_DATE)
     if date_check != "":
         console.print("Program exited.",style="error") if userich else print("Program exited.")
-        console.print("Reason: " + date_check,style="alert") if userich else print("Reason: " + date_check)
+        console.print("Reason: " + date_check,style="warning") if userich else print("Reason: " + date_check)
         return
     
     # Requires file name (STAR Planner Html) & first day of first teaching week of semester #
@@ -59,7 +60,7 @@ def generate_ics_file(FILE_NAME,START_DATE,userich=False):
     
     SD = START_DATE.split("/")
     startday = datetime(int(SD[-1]), int(SD[1][1]) if SD[1][0] == "0" else int(SD[1]), int(SD[0]), 0, 0, 0)   
-    console.print("Preparing calender file...",style="success") if userich else print("Preparing calender file...")
+    console.print("Preparing calender file...",style="process") if userich else print("Preparing calender file...")
     # Create a new calendar #
     cal = Calendar()
     # Set calendar metadata #
@@ -129,7 +130,7 @@ def generate_ics_file(FILE_NAME,START_DATE,userich=False):
     main_dir = os.path.dirname(os.path.abspath(FINAL_FILE_NAME))
     final_dir = main_dir+"\\calendars\\"+FINAL_FILE_NAME
     os.replace(main_dir+"/"+FINAL_FILE_NAME, final_dir)
-    console.print(f"[success]Calender file has been created.[/success] \n[alert]File is saved here:[/alert] {final_dir}",style="bold yellow") if userich else print(f"Calender file has been created. \nFile is saved here: {final_dir}")
+    console.print(f"[success]Calender file has been created.[/success] \n[warning]File is saved here:[/warning] {final_dir}",style="bold yellow") if userich else print(f"Calender file has been created. \nFile is saved here: {final_dir}")
     return FINAL_FILE_NAME
 
     ### REFERENCE CODE ###

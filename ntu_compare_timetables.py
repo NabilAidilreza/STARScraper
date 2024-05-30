@@ -9,6 +9,7 @@ from rich import print
 from rich.table import Table
 from rich.console import Console
 from rich.theme import Theme
+from rich.progress import track
 
 #! FILE THAT MANAGES LOCAL TABLE COMPARISON #
 
@@ -51,10 +52,11 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
             return "Not a HTML file."
         else:
             try:
-                testname = file_name.split("_")
+                file = open(file_name)
+                file.close()
                 return ""
             except:
-                return "Incorrect format. (Follow recommended format)"
+                return "File not found."
     def check_wk_num(wk_num):
         try:
             wk_num = int(wk_num)
@@ -76,18 +78,18 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
     #? Main function #
     #* Python Rich Init if Used #
     if userich:
-        custom_theme = Theme({"success":"bold green","error":"bold red","alert":"bold orange_red1"})
+        custom_theme = Theme({"success":"bold green","error":"bold red","warning":"bold orange_red1","process":"blue_violet"})
         console = Console(theme=custom_theme,record=True)
 
     check_two = check_wk_num(wk_num)
     check_three = check_date(start_date)
     if check_two != "":
         console.print("Program exited.",style="error") if userich else print("Program exited.")
-        console.print("Reason: " + check_two,style="alert") if userich else print("Reason: " + check_two)
+        console.print("Reason: " + check_two,style="warning") if userich else print("Reason: " + check_two)
         return
     if check_three != "":
         console.print("Program exited.",style="error") if userich else print("Program exited.")
-        console.print("Reason: " + check_three,style="alert") if userich else print("Reason: " + check_three)
+        console.print("Reason: " + check_three,style="warning") if userich else print("Reason: " + check_three)
         return
 
     NUMBER_OF_PPL = len(file_name_array)
@@ -109,9 +111,11 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
                     "22":14}
 
     try:
+        console.print("Creating timeline...",style="process") if userich else print("Creating timeline...")
         timeline = generate_timeline(start_date)
     except ValueError:
-        console.print("[error]Error occurred:[/error]" + "[alert] Unknown date string![/alert]\n[error]Exiting program...[/error]") if userich else print("Error occurred: Unknown date string!\nExiting program...")
+        console.print("[error]Error occurred:[/error]" + "[warning] Unknown date string![/warning]\n[error]Exiting program...[/error]") if userich else print("Error occurred: Unknown date string!\nExiting program...")
+        return
     
     DATES = {}
     for i in range(len(timeline)):
@@ -128,9 +132,11 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
     lst = []
 
     # #! TEST CASE #
+    # file_name_array[2] = "FAKE_FILE.html"
     # file_name_array[3] = "YIKES_html"
     # #! --------- #
 
+    console.print("Reading files...",style="process") if userich else print("Reading files...")
     # Extract all tables #
     errorList = []
     for file in file_name_array:
@@ -145,10 +151,9 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
     if len(errorList) != 0:
         for errorFile in errorList:
             file_name_array.remove(errorFile)
-            console.print("File: " + errorFile + " removed from stack.",style="alert") if userich else print("File: " + errorFile + " removed from stack.")
-            console.print("Reason: " + check_file_name(errorFile),style="alert") if userich else print("Reason: " + check_file_name(errorFile))
-
-            
+            console.print("File: " + errorFile + " removed from stack.",style="warning") if userich else print("File: " + errorFile + " removed from stack.")
+            console.print("Reason: " + check_file_name(errorFile),style="warning") if userich else print("Reason: " + check_file_name(errorFile))
+        
     # Set up day tables #
     MONDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     TUESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
@@ -157,7 +162,8 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
     FRIDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     SATURDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY]
-    
+
+    console.print("Sorting events...",style="process") if userich else print("Sorting events...")
     #? Sorting data #
     for i in range(len(lst)):
         for week in lst[i]:
@@ -184,7 +190,7 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
                                 start_index += 1
                         else:
                             WEEK[day_index][i][start_index] = result
-    
+    console.print("Creating chart...",style="process") if userich else print("Creating chart...")
     #? Create chart #
     if userich:
         console.print(f"\n\nTeaching Week {str(wk_num)} -> {DATES[wk_num]}")
@@ -202,6 +208,8 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
             for i in range(len(transposed_data)):
                 row = transposed_data[i]
                 row.insert(0,PERIODS[i])
+                if len(errorList) != 0:
+                    row = row[:-len(errorList)]
                 table.add_row(*row)
             console.print(table)
         file_name = f"comparison_tables\WEEK_" + str(wk_num) + "_TABLE.txt"
@@ -225,6 +233,8 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
         for i in range(len(WEEK)):
             x = create_pretty_table()
             transposed_data = list(map(list, zip(*WEEK[i])))
+            if len(errorList) != 0:
+                transposed_data = [row[:-len(errorList)] for row in transposed_data]
             x.add_rows(transposed_data)
             fieldname = 'Period'
             x._field_names.insert(0, fieldname) 

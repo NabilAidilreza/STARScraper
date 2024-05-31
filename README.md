@@ -7,14 +7,6 @@ Nanyang Technological University (NTU)
 
 A python program that extracts your modules and timings from a HTML copy of your NTU STARs Timetable. 
 
-## Disclaimer
-
-Only available in Python. 
-
-To download required library dependencies on your own computer.
-
-Refer to requirements.txt.
-
 ## Main functions
 
 - Generates an .ics file (calendar file) to use on Outlook / Google Calendar for better viewing.
@@ -49,7 +41,15 @@ run
 ```
 to generate text table output for comparison (> 1 STARS HTML file required)
 
-## NOTE
+## Disclaimer
+
+Only available in Python. 
+
+To download required library dependencies on your own computer.
+
+Refer to requirements.txt.
+
+## Extra Notes
 
 #### Python Rich module
 

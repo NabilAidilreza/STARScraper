@@ -29,21 +29,38 @@ pip install -r requirements.txt
 ```
 3. Download your version of STARS Planner HTML (& your friends, if applicable) [Refer to samples/STARS_SAMPLE.html]
 
-4. Make sure all files are under the same directory.
+4. Save your files under a folder in the same directory.
 
 5. Open *local_commands.py*
+
+6. Edit the following settings
+
+```bash
+    start_date = "15/08/2024" # Start Date of Current Semester
+    target_folder = "YR1S2"   # Target folder holding all your html files
+```
+
+7. In *local_commands.py*
 
 run  
 
 ```bash
-  generate_ics_file("STARS_YOURFILENAME.html","14/08/2023")
+    target_file_name = "STARS_YOURNAME.html"
+    target_folder = "YR1S2"
+    target_path = target_folder + "\\" + target_file_name
+    generate_ics_file(target_path,start_date)
 ```
 to generate the calender file.
 
 run
 ```bash
-  TIMETABLES_TO_COMPARE = ["STARS_NAME.html","STARS_NAME1.html",...]
-  compare_grp_timetables(TIMETABLES_TO_COMPARE,3) # Week 3
+    curr_dir = os.getcwd()
+    path = curr_dir + "\\" + target_folder
+    dir_list = os.listdir(path)
+    for i in range(len(dir_list)):
+        dir_list[i] = f"{target_folder}\\" + dir_list[i]
+    gen = compare_grp_timetables(dir_list,3,start_date) # Week 3
+
 ```
 to generate text table output for comparison (> 1 STARS HTML file required)
 

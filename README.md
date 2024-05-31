@@ -37,7 +37,7 @@ to generate the calender file.
 run
 ```bash
   TIMETABLES_TO_COMPARE = ["STARS_NAME.html","STARS_NAME1.html",...]
-  compare_grp_timetables(TIMETABLES_TO_COMPARE,3,False)
+  compare_grp_timetables(TIMETABLES_TO_COMPARE,3,False) # Week 3 Comparison, Rich Module off
 ```
 to generate text table output for comparison (> 1 STARS HTML file required)
 

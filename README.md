@@ -7,8 +7,6 @@ Nanyang Technological University (NTU)
 
 A python program that extracts your modules and timings from a HTML copy of your NTU STARs Timetable. 
 
-For multiple purposes.
-
 ## Disclaimer
 
 Only available in Python. 

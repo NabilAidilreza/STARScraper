@@ -14,7 +14,7 @@ import os
 # for i in range(len(dir_list)):
 #     dir_list[i] = "FolderofHTMLS\\" + dir_list[i]
 
-# gen = compare_grp_timetables(dir_list,8,"15/01/2024",True) => list of html, week, startdate
+# gen = compare_grp_timetables(dir_list,8,"15/01/2024") => list of html, week, startdate
 
 
 #! Examples #
@@ -24,4 +24,4 @@ import os
 #TIMETABLES_TO_COMPARE = ["STARS_NAB.html","STARS_JX.html","STARS_FAZ.html","STARS_TIM.html","STARS_YJ.html","STARS_ZY.html"] => List of friends htmls
 
 # Creates a text table to compare timetables -> input -> array of file names (STARS HTML), int week number of semester desired e.g Week 3
-#compare_grp_timetables(TIMETABLES_TO_COMPARE,2,"15/01/2024",True) => Set last param to True to use Pytho Rich Module stylised output
+#compare_grp_timetables(TIMETABLES_TO_COMPARE,2,"15/01/2024")

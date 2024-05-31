@@ -44,7 +44,7 @@ def get_name(file_name):
     return file_name.replace(".html","").split("_")[-1]
      
 # Creates a txt file to compare schedules #
-def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
+def compare_grp_timetables(file_name_array,wk_num,start_date):
     #? Error Checkers #
     def check_file_name(file_name):
         if "_" not in file_name:
@@ -77,20 +77,19 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
             return "Use correct format. (DD/MM/YYYY)"
         
     #? Main function #
-    #* Python Rich Init if Used #
-    if userich:
-        custom_theme = Theme({"success":"bold green","error":"bold red","warning":"bold orange_red1","process":"blue_violet"})
-        console = Console(theme=custom_theme,record=True)
+    #* Python Rich #
+    custom_theme = Theme({"success":"bold green","error":"bold red","warning":"bold orange_red1","process":"blue_violet"})
+    console = Console(theme=custom_theme,record=True)
 
     check_two = check_wk_num(wk_num)
     check_three = check_date(start_date)
     if check_two != "":
-        console.print("Program exited.",style="error") if userich else print("Program exited.")
-        console.print("Reason: " + check_two,style="warning") if userich else print("Reason: " + check_two)
+        console.print("Program exited.",style="error")
+        console.print("Reason: " + check_two,style="warning")
         return
     if check_three != "":
-        console.print("Program exited.",style="error") if userich else print("Program exited.")
-        console.print("Reason: " + check_three,style="warning") if userich else print("Reason: " + check_three)
+        console.print("Program exited.",style="error")
+        console.print("Reason: " + check_three,style="warning")
         return
 
     NUMBER_OF_PPL = len(file_name_array)
@@ -112,10 +111,10 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
                     "22":14}
 
     try:
-        console.print("Creating timeline...",style="process") if userich else print("Creating timeline...")
+        console.print("Creating timeline...",style="process")
         timeline = generate_timeline(start_date)
     except ValueError:
-        console.print("[error]Error occurred:[/error]" + "[warning] Unknown date string![/warning]\n[error]Exiting program...[/error]") if userich else print("Error occurred: Unknown date string!\nExiting program...")
+        console.print("[error]Error occurred:[/error]" + "[warning] Unknown date string![/warning]\n[error]Exiting program...[/error]")
         return
     
     DATES = {}
@@ -139,7 +138,7 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
     # file_name_array[3] = "YIKES_html"
     # #! --------- #
 
-    console.print("Reading files...",style="process") if userich else print("Reading files...")
+    console.print("Reading files...",style="process")
     # Extract all tables #
     errorList = []
     for file in file_name_array:
@@ -147,15 +146,15 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
             temp = create_timetable_list(file)
             temp.pop(0)
             lst.append(temp)
-            console.print("File: " + file + " -> [success]success![/success]") if userich else print("File: " + file + " -> success!")
+            console.print("File: " + file + " -> [success]success![/success]")
         except Exception:
-            console.print("File: " + file + " -> [error]error![/error]") if userich else print("File: " + file + " -> error!")
+            console.print("File: " + file + " -> [error]error![/error]")
             errorList.append(file)
     if len(errorList) != 0:
         for errorFile in errorList:
             file_name_array.remove(errorFile)
-            console.print("File: " + errorFile + " removed from stack.",style="warning") if userich else print("File: " + errorFile + " removed from stack.")
-            console.print("Reason: " + check_file_name(errorFile),style="warning") if userich else print("Reason: " + check_file_name(errorFile))
+            console.print("File: " + errorFile + " removed from stack.",style="warning")
+            console.print("Reason: " + check_file_name(errorFile),style="warning")
         
     # Set up day tables #
     MONDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
@@ -168,7 +167,7 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
 
     WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY]
 
-    console.print("Sorting events...",style="process") if userich else print("Sorting events...")
+    console.print("Sorting events...",style="process")
     #? Sorting data #
     for i in range(len(lst)):
         #? lst[i] => person items
@@ -199,90 +198,56 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
     #? Lunch Logic #
     FREE = [{DAYS[_]:{}} for _ in range(len(DAYS))]
     
-    console.print("Creating chart...",style="process") if userich else print("Creating chart...")
+    console.print("Creating chart...",style="process")
     #? Create chart #
-    if userich:
-        console.print(f"\n\nTeaching Week {str(wk_num)} -> {DATES[wk_num]}")
-        def setupTable(day):
-            table = Table(title=f"{day[0] + day[1:].lower()}")
-            lst = []
-            table.add_column("Period",style="orange_red1",justify="center")
-            for name in file_name_array:
-                col_name = get_name(name)
-                table.add_column(col_name,style="cyan",justify="center")
-            return table
-        for i in range(len(WEEK)):
-            table = setupTable(DAYS[i])
-            transposed_data = list(map(list, zip(*WEEK[i])))
-            for m in range(len(transposed_data)):
-                row = transposed_data[m]
-                FREE[i][DAYS[i]][PERIODS[m] if m in [3,4,5] else ""] = [get_name(file_name_array[i]) for i in range(len(row)) if row[i] == ""]
-                row.insert(0,PERIODS[m])
-                if len(errorList) != 0:
-                    row = row[:-len(errorList)]
-                table.add_row(*row)
-            console.print(table)
-        def setupLunchTable():
-            table = Table(title="Possible Weekly Lunch Timings")
-            table.add_column("Day",style="green",justify="center")
-            table.add_column("Period",style="orange_red1",justify="center")
-            table.add_column("Names",style="cyan")
-            return table
 
-        lunch_table = setupLunchTable()
-        temp = []
-        for j in range(len(FREE)):
-            day = FREE[j][DAYS[j]]
-            day_temp = []
-            for period in day.keys():
-                day_temp.append(["",period,",".join(day[period])])
-            if day_temp[0][1] == "":
-                day_temp.pop(0)
-            day_temp[0][0] = dayref[j]
-            temp.append(day_temp)
-        for row in temp:
-            for col in row:
-                lunch_table.add_row(*col)
-        console.print(lunch_table)
-        if not os.path.exists("comparison_tables"):
-            os.makedirs("comparison_tables")
-        file_name = f"comparison_tables\\WEEK_" + str(wk_num) + "_TABLE.txt"
-        console.save_text(file_name)
-        return file_name
-    else:
-        # Print and create txt file #
+    console.print(f"\n\nTeaching Week {str(wk_num)} -> {DATES[wk_num]}")
+    def setupTable(day):
+        table = Table(title=f"{day[0] + day[1:].lower()}")
         lst = []
+        table.add_column("Period",style="orange_red1",justify="center")
         for name in file_name_array:
-            name = name.split("_")[1]
-            lst.append(name)
-        def create_pretty_table():
-            x = PrettyTable()
-            x.field_names = lst
-            return x
-        file_name = "comparison_tables\WEEK_" + str(wk_num) + "_TABLE.txt"
-        f = open(file_name,"w")
-        f.write("*-----------------------------------------------------------*\n")
-        f.write("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num] + "\n")
-        f.write("*-----------------------------------------------------------*\n\n")
-        for i in range(len(WEEK)):
-            x = create_pretty_table()
-            transposed_data = list(map(list, zip(*WEEK[i])))
+            col_name = get_name(name)
+            table.add_column(col_name,style="cyan",justify="center")
+        return table
+    for i in range(len(WEEK)):
+        table = setupTable(DAYS[i])
+        transposed_data = list(map(list, zip(*WEEK[i])))
+        for m in range(len(transposed_data)):
+            row = transposed_data[m]
+            FREE[i][DAYS[i]][PERIODS[m] if m in [3,4,5] else ""] = [get_name(file_name_array[i]) for i in range(len(row)) if row[i] == ""]
+            row.insert(0,PERIODS[m])
             if len(errorList) != 0:
-                transposed_data = [row[:-len(errorList)] for row in transposed_data]
-            x.add_rows(transposed_data)
-            fieldname = 'Period'
-            x._field_names.insert(0, fieldname) 
-            x._align[fieldname] = 'c' 
-            x._valign[fieldname] = 't' 
-            for n, _ in enumerate(x._rows): 
-                x._rows[n].insert(0, PERIODS[n]) 
-            f.write(DAYS[i]+"\n")
-            f.write(x.get_string() + '\n\n')
-        f.close()
-        print("\n\n !!! SUCCESS !!! \n\n")
-        print("Txt file created... -> WEEK_" + str(wk_num) + "_TABLE.txt\n")
-        return file_name
+                row = row[:-len(errorList)]
+            table.add_row(*row)
+        console.print(table)
+    def setupLunchTable():
+        table = Table(title="Possible Weekly Lunch Timings")
+        table.add_column("Day",style="green",justify="center")
+        table.add_column("Period",style="orange_red1",justify="center")
+        table.add_column("Names",style="cyan")
+        return table
 
+    lunch_table = setupLunchTable()
+    temp = []
+    for j in range(len(FREE)):
+        day = FREE[j][DAYS[j]]
+        day_temp = []
+        for period in day.keys():
+            day_temp.append(["",period,",".join(day[period])])
+        if day_temp[0][1] == "":
+            day_temp.pop(0)
+        day_temp[0][0] = dayref[j]
+        temp.append(day_temp)
+    for row in temp:
+        for col in row:
+            lunch_table.add_row(*col)
+    console.print(lunch_table)
+    if not os.path.exists("comparison_tables"):
+        os.makedirs("comparison_tables")
+    file_name = f"comparison_tables\\WEEK_" + str(wk_num) + "_TABLE.txt"
+    console.save_text(file_name)
+    return file_name
 
 ### REFERENCES ###
 # Course No 1
@@ -301,3 +266,36 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
 # Venue 14
 # Remark 15
 # Exam 16
+
+    # # Print and create txt file (BASIC TEXT)[REDACTED] #
+    # lst = []
+    # for name in file_name_array:
+    #     name = name.split("_")[1]
+    #     lst.append(name)
+    # def create_pretty_table():
+    #     x = PrettyTable()
+    #     x.field_names = lst
+    #     return x
+    # file_name = "comparison_tables\WEEK_" + str(wk_num) + "_TABLE.txt"
+    # f = open(file_name,"w")
+    # f.write("*-----------------------------------------------------------*\n")
+    # f.write("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num] + "\n")
+    # f.write("*-----------------------------------------------------------*\n\n")
+    # for i in range(len(WEEK)):
+    #     x = create_pretty_table()
+    #     transposed_data = list(map(list, zip(*WEEK[i])))
+    #     if len(errorList) != 0:
+    #         transposed_data = [row[:-len(errorList)] for row in transposed_data]
+    #     x.add_rows(transposed_data)
+    #     fieldname = 'Period'
+    #     x._field_names.insert(0, fieldname) 
+    #     x._align[fieldname] = 'c' 
+    #     x._valign[fieldname] = 't' 
+    #     for n, _ in enumerate(x._rows): 
+    #         x._rows[n].insert(0, PERIODS[n]) 
+    #     f.write(DAYS[i]+"\n")
+    #     f.write(x.get_string() + '\n\n')
+    # f.close()
+    # print("\n\n !!! SUCCESS !!! \n\n")
+    # print("Txt file created... -> WEEK_" + str(wk_num) + "_TABLE.txt\n")
+    # return file_name

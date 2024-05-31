@@ -5,8 +5,6 @@ import x_wr_timezone
 from datetime import datetime,timedelta
 from ntu_hub import create_timetable_list
 
-from rich import print
-from rich.table import Table
 from rich.console import Console
 from rich.theme import Theme
 

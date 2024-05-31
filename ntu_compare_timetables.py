@@ -4,7 +4,6 @@ from prettytable import *
 import re
 from ntu_extract_timetable import generate_timeline
 
-from rich import print
 from rich.table import Table
 from rich.console import Console
 from rich.theme import Theme

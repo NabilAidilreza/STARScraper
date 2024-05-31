@@ -1,27 +1,27 @@
+import os
 from ntu_hub import compare_grp_timetables,create_timetable_list
 from ntu_ics_generator import generate_ics_file
-# from rich.traceback import install
-# install()
 
 #! FILE FOR LOCAL EXECUTION OF CODES #
 
+def main():
+    #? SETTINGS #
+    start_date = "15/08/2024"
+    target_folder = "YR1S2"
 
-# Execute commands here #
-import os
+    #! ICS GENERATOR #
+    target_file_name = "STARS_NAME.html"
+    target_folder = "YR1S2"
+    target_path = target_folder + "\\" + target_file_name
+    generate_ics_file(target_path,start_date)
 
-# path = "YOUR_PATH/FolderofHTMLS"
-# dir_list = os.listdir(path)
-# for i in range(len(dir_list)):
-#     dir_list[i] = "FolderofHTMLS\\" + dir_list[i]
+    #! COMPARE TIMETABLES #
+    curr_dir = os.getcwd()
+    path = curr_dir + "\\" + target_folder
+    dir_list = os.listdir(path)
+    for i in range(len(dir_list)):
+        dir_list[i] = f"{target_folder}\\" + dir_list[i]
+    gen = compare_grp_timetables(dir_list,8,start_date) # => list of html, week, startdate
 
-# gen = compare_grp_timetables(dir_list,8,"15/01/2024") => list of html, week, startdate
-
-
-#! Examples #
-
-#generate_ics_file("STARS_SAMPLE.html","14/08/2023") => Params: File Name and Start Date of Semester
-
-#TIMETABLES_TO_COMPARE = ["STARS_NAB.html","STARS_JX.html","STARS_FAZ.html","STARS_TIM.html","STARS_YJ.html","STARS_ZY.html"] => List of friends htmls
-
-# Creates a text table to compare timetables -> input -> array of file names (STARS HTML), int week number of semester desired e.g Week 3
-#compare_grp_timetables(TIMETABLES_TO_COMPARE,2,"15/01/2024")
+if __name__ == "__main__":
+    main()

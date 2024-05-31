@@ -1,17 +1,11 @@
 
-# NTU Timetable Generator
+# NTU STARS Project
 
 ## Desciption
 
-A python program that extracts your modules and timings from a HTML copy of your NTU STARs Timetable.
+Nanyang Technological University (NTU)
 
-## Disclaimer
-
-Only available in Python. 
-
-To download required library dependencies on your own computer.
-
-Refer to requirements.txt.
+A python program that extracts your modules and timings from a HTML copy of your NTU STARs Timetable. 
 
 ## Main functions
 
@@ -43,11 +37,19 @@ to generate the calender file.
 run
 ```bash
   TIMETABLES_TO_COMPARE = ["STARS_NAME.html","STARS_NAME1.html",...]
-  compare_grp_timetables(TIMETABLES_TO_COMPARE,3,False)
+  compare_grp_timetables(TIMETABLES_TO_COMPARE,3,False) # Week 3 Comparison, Rich Module off
 ```
 to generate text table output for comparison (> 1 STARS HTML file required)
 
-## NOTE
+## Disclaimer
+
+Only available in Python. 
+
+To download required library dependencies on your own computer.
+
+Refer to requirements.txt.
+
+## Extra Notes
 
 #### Python Rich module
 

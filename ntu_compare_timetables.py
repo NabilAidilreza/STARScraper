@@ -1,15 +1,13 @@
+import os
 from ntu_hub import create_timetable_list
 from prettytable import *
 import re
 from ntu_extract_timetable import generate_timeline
 
-
-
 from rich import print
 from rich.table import Table
 from rich.console import Console
 from rich.theme import Theme
-from rich.progress import track
 
 #! FILE THAT MANAGES LOCAL TABLE COMPARISON #
 
@@ -210,7 +208,7 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
             lst = []
             table.add_column("Period",style="orange_red1",justify="center")
             for name in file_name_array:
-                col_name = name.split("_")[1]
+                col_name = get_name(name)
                 table.add_column(col_name,style="cyan",justify="center")
             return table
         for i in range(len(WEEK)):
@@ -218,14 +216,37 @@ def compare_grp_timetables(file_name_array,wk_num,start_date,userich = False):
             transposed_data = list(map(list, zip(*WEEK[i])))
             for m in range(len(transposed_data)):
                 row = transposed_data[m]
-                FREE[i][DAYS[i]][PERIODS[m]] = [get_name(file_name_array[i]) for i in range(len(row)) if row[i] == ""]
+                FREE[i][DAYS[i]][PERIODS[m] if m in [3,4,5] else ""] = [get_name(file_name_array[i]) for i in range(len(row)) if row[i] == ""]
                 row.insert(0,PERIODS[m])
                 if len(errorList) != 0:
                     row = row[:-len(errorList)]
                 table.add_row(*row)
             console.print(table)
-        print(FREE)
-        file_name = f"comparison_tables\WEEK_" + str(wk_num) + "_TABLE.txt"
+        def setupLunchTable():
+            table = Table(title="Possible Weekly Lunch Timings")
+            table.add_column("Day",style="green",justify="center")
+            table.add_column("Period",style="orange_red1",justify="center")
+            table.add_column("Names",style="cyan")
+            return table
+
+        lunch_table = setupLunchTable()
+        temp = []
+        for j in range(len(FREE)):
+            day = FREE[j][DAYS[j]]
+            day_temp = []
+            for period in day.keys():
+                day_temp.append(["",period,",".join(day[period])])
+            if day_temp[0][1] == "":
+                day_temp.pop(0)
+            day_temp[0][0] = dayref[j]
+            temp.append(day_temp)
+        for row in temp:
+            for col in row:
+                lunch_table.add_row(*col)
+        console.print(lunch_table)
+        if not os.path.exists("comparison_tables"):
+            os.makedirs("comparison_tables")
+        file_name = f"comparison_tables\\WEEK_" + str(wk_num) + "_TABLE.txt"
         console.save_text(file_name)
         return file_name
     else:

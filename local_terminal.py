@@ -44,7 +44,13 @@ def main():
     custom_theme = Theme({"green":"bold green","yellow":"yellow","cyan":"bold bright_cyan","red":"bold red","magenta":"bold bright_magenta","violet":"bold blue_violet"})
     console = Console(theme=custom_theme)
 
-    console.print("--- [green]NTU STARS Project[/green] ---\n",style="blue")
+    console.print(" ______ |\_______________ ___   ___________________  _____  __________  _________\n\
+ \     \| |__    ___/    |   \ /   _____/__    ___/ /  _  \ \______   \/   _____/\n\
+ /   |    | |    |  |    |   / \_____  \  |    |   /  /_\  \ |       _/\_____  \ \n\
+/    |\   | |    |  |    |  /  /        \ |    |  /    |    \|    |   \/        \\\n\
+\____| \  / |____|  |______/  /_______  / |____|  \____|__  /|____|_  /_______  /\n\
+        \/                            \/                  \/        \/        \/ ")
+    console.print("\t\t\t===== [green]NTU STARS Project[/green] =====\n",style="blue")
     console.print("Start date: ",start_date,style="yellow")
     console.print("[yellow]Current target folder:[/yellow] " + f"[cyan]{target_folder}[/cyan]")
 
@@ -58,6 +64,8 @@ def main():
     except Exception:
         console.print("Folder not found!!!",style="red")
         console.print("Please set to the correct folder...",style="yellow")
+        rainbow = RainbowHighlighter()
+        console.print(rainbow("\nMake sure target folder in same directory as project folder.\n"))
         target_name = input("Folder name: ")
         update_settings(target_name,"")
         console.print("[yellow]Target folder set to [/yellow]" + f"[green]{target_name}[/green]")
@@ -68,10 +76,8 @@ def main():
     tree = make_dir_tree(directory)
     walk_directory(pathlib.Path(directory), tree)
     console.print(tree)
-    rainbow = RainbowHighlighter()
-    console.print(rainbow("\nMake sure target folder in same directory as project folder.\n"))
 
-    console.print("Options\n\
+    console.print("\nOptions\n\
     1. [green]Generate ics file[/green]\n\
     2. [yellow]Compare timetables[/yellow]\n\
     3. [magenta]Delete old files[/magenta]\n\

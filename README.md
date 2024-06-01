@@ -23,13 +23,11 @@ Refer to requirements.txt.
 
 1. Clone this project
 
-2. Install requirements.txt in command line
-```bash
-pip install -r requirements.txt
-```
+2. Install requirements.txt with `pip install -r requirements.txt`
+
 3. Download your version of STARS Planner HTML (& your friends, if applicable) [Refer to samples/STARS_SAMPLE.html]
 
-4. Save your files under a folder in the same directory.
+4. Save your files under a folder in the main project directory.
 
 5. Run *local_terminal.py*
 

@@ -1,11 +1,12 @@
 import os
-from bs4 import BeautifulSoup
+import re
 import csv
-import openpyxl
-from openpyxl.styles import PatternFill, Font
 import json
 from datetime import datetime,timedelta
-import re
+from bs4 import BeautifulSoup
+import openpyxl
+from openpyxl.styles import PatternFill, Font
+
 
 #! FILE THAT MANAGES ALL BASIC FUNCTIONS OF PROJECT #
 
@@ -15,8 +16,9 @@ import re
 def read_html_file(file_name):
     # Get the current directory of the script
     script_directory = os.path.dirname(os.path.abspath(__file__))
+    main_directory = os.path.dirname(script_directory)
     # Construct the file path by joining the script directory and the file name
-    file_path = os.path.join(script_directory, file_name)
+    file_path = os.path.join(main_directory, file_name)
     # Open the file in read mode and specify the encoding as utf-8
     with open(file_path, 'r', encoding='windows-1252') as file:
         # Read the content of the file

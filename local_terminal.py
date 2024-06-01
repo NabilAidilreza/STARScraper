@@ -1,10 +1,7 @@
 import os
-from ntu_hub import *
-from ntu_ics_generator import generate_ics_file
-
-import os
 import json
 import pathlib
+from scripts import *
 from rich.theme import Theme
 from rich.console import Console
 from rich.traceback import install
@@ -48,8 +45,6 @@ def main():
         for i in range(len(dir_list)):
             dir_list[i] = f"{target_folder}\\" + dir_list[i]
     except Exception:
-        #TODO Save File for Variable #
-        #TODO Function to update Variables from SaveFile #
         console.print("Folder not found!!!",style="red")
         console.print("Please set to the correct folder...",style="yellow")
         target_name = input("Folder name: ")

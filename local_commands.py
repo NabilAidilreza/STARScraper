@@ -1,6 +1,5 @@
 import os
-from ntu_hub import compare_grp_timetables,create_timetable_list
-from ntu_ics_generator import generate_ics_file
+from scripts import compare_grp_timetables, generate_ics_file
 
 #! FILE FOR LOCAL EXECUTION OF CODES #
 

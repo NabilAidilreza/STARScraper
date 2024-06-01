@@ -1,10 +1,9 @@
 import os
 import uuid
-from icalendar import Calendar, Event
 import x_wr_timezone
+from icalendar import Calendar, Event
 from datetime import datetime,timedelta
-from ntu_hub import create_timetable_list
-
+from .ntu_extract_timetable import create_timetable_list
 from rich.console import Console
 from rich.theme import Theme
 
@@ -126,7 +125,9 @@ def generate_ics_file(FILE_NAME,START_DATE):
     # Get the absolute path of the saved file
     main_dir = os.path.dirname(os.path.abspath(FINAL_FILE_NAME))
     final_dir = main_dir+"\\calendars\\"+FINAL_FILE_NAME
-    os.replace(main_dir+"/"+FINAL_FILE_NAME, final_dir)
+    print(main_dir)
+    print(final_dir)
+    os.replace(main_dir+"\\"+FINAL_FILE_NAME, final_dir)
     console.print(f"[success]Calender file has been created.[/success] \n[warning]File is saved here:[/warning] {final_dir}",style="bold yellow")
 
     ### REFERENCE CODE ###

@@ -1,34 +1,25 @@
 import os
-from ntu_hub import create_timetable_list
-from prettytable import *
 import re
-from ntu_extract_timetable import generate_timeline
-
-from rich.table import Table
+from .ntu_extract_timetable import generate_timeline, create_timetable_list
 from rich.console import Console
 from rich.theme import Theme
+from rich.table import Table
+# from prettytable import *
 
 #! FILE THAT MANAGES LOCAL TABLE COMPARISON #
 
 # Clean venue string via regex #
 def check_venue(char):
-    # Regular expression pattern to match text within parentheses
     pattern = r'\((.*?)\)'
-    # Find the first occurrence of the pattern in the input string
     common_term = re.search(pattern, char)
     if common_term != None:
-        # Get the matched text
         venue = common_term.group(0)
         if "The " in venue:
-            # Remove "The " from the venue name
             venue = venue.replace("The ", "")
     else:
-        # Regular expression pattern to match text before a hyphen
         pattern = r'^.*?-'
-        # Find the first occurrence of the pattern in the input string
         common_term = re.search(pattern, char)
         if common_term != None:
-            # Add parentheses around the matched text
             venue = "(" + common_term.group(0)[:-1] + ")"
         else:
             venue = '-'

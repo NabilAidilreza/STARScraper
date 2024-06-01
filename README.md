@@ -6,6 +6,8 @@
 
 A python program that extracts your modules and timings from a HTML copy of your NTU STARs Timetable.
 
+![DEMO](https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/97596935-beaa-4098-ba9c-eefd5cbf31ef)
+
 ## Disclaimer
 
 Only available in Python. 

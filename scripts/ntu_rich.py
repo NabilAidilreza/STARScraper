@@ -27,6 +27,7 @@ def make_dir_tree(directory):
 
 def walk_directory(directory: pathlib.Path, tree: Tree) -> None:
     """Recursively build a Tree with directory contents."""
+    file_names = []
     # Sort dirs first then by filename
     paths = sorted(
         pathlib.Path(directory).iterdir(),
@@ -45,6 +46,7 @@ def walk_directory(directory: pathlib.Path, tree: Tree) -> None:
             )
             walk_directory(path, branch)
         else:
+            file_names.append(path.name)
             text_filename = Text(path.name, "green")
             text_filename.highlight_regex(r"\..*$", "bold red")
             text_filename.highlight_regex(r"STARS_", "bold blue_violet")
@@ -53,6 +55,7 @@ def walk_directory(directory: pathlib.Path, tree: Tree) -> None:
             text_filename.append(f" ({decimal(file_size)})", "blue")
             icon = "🗃️ " if path.suffix == ".html" else "📄 "
             tree.add(Text(icon) + text_filename)
+    return file_names
 
 def delete_files_in_folder(folder_path):
     for filename in os.listdir(folder_path):

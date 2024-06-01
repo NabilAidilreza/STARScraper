@@ -3,6 +3,6 @@
 beautifulsoup4==4.11.1
 icalendar==5.0.7
 openpyxl==3.0.9
-prettytable==3.8.0
 rich==13.7.1
+inquirerpy==0.3.4
 x-wr-timezone==0.0.5

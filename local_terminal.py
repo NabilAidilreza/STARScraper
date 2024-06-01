@@ -5,6 +5,7 @@ from scripts import *
 from rich.theme import Theme
 from rich.console import Console
 from rich.traceback import install
+from InquirerPy import prompt
 install()
 
 #! FILE FOR LOCAL EXECUTION OF CODES #
@@ -74,7 +75,7 @@ def main():
 
     directory = os.path.abspath(target_folder)
     tree = make_dir_tree(directory)
-    walk_directory(pathlib.Path(directory), tree)
+    file_names = walk_directory(pathlib.Path(directory), tree)
     console.print(tree)
 
     console.print("\nOptions\n\
@@ -88,8 +89,10 @@ def main():
     while True:
         choice = input("Input: ")
         if choice == "1":
-            target_file_name = input("Target file name: ")
-            target_path = target_folder + "\\" + target_file_name
+            target_file_name = prompt({"message": "Target file name: ",
+                "type": "fuzzy",
+                "choices": file_names})
+            target_path = target_folder + "\\" + target_file_name[0]
             generate_ics_file(target_path,start_date)
         elif choice == "2":
             wk = input("Week: ")

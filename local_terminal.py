@@ -11,7 +11,7 @@ install()
 
 def main():
 
-    #? SETTINGS #
+    #? INIT SETTINGS #
     try:
         with open("settings.json","r") as file:
             init_settings = json.load(file)
@@ -28,6 +28,17 @@ def main():
         start_date = init_settings["start_date"]
         target_folder = init_settings["target_folder"]
 
+    def update_settings(new_t="",new_s = ""):
+        with open("settings.json","r") as file:
+            init_settings = json.load(file)
+            if new_t != "":
+                init_settings["target_folder"] = new_t
+            if new_s != "":
+                init_settings["start_date"] = new_s
+            file.close()
+        with open("settings.json", "w") as file:
+            json.dump(init_settings, file)
+            file.close()
 
     #! Main Console #
     custom_theme = Theme({"green":"bold green","yellow":"yellow","cyan":"bold bright_cyan","red":"bold red","magenta":"bold bright_magenta","violet":"bold blue_violet"})
@@ -37,7 +48,7 @@ def main():
     console.print("Start date: ",start_date,style="yellow")
     console.print("[yellow]Current target folder:[/yellow] " + f"[cyan]{target_folder}[/cyan]")
 
-    #! INIT SETUP #
+    #! CHECK SETUP #
     try:
         curr_dir = os.getcwd()
         path = curr_dir + "\\" + target_folder
@@ -48,13 +59,7 @@ def main():
         console.print("Folder not found!!!",style="red")
         console.print("Please set to the correct folder...",style="yellow")
         target_name = input("Folder name: ")
-        with open("settings.json","r") as file:
-            init_settings = json.load(file)
-            init_settings["target_folder"] = target_name
-            file.close()
-        with open("settings.json", "w") as file:
-            json.dump(init_settings, file)
-            file.close()
+        update_settings(target_name,"")
         console.print("[yellow]Target folder set to [/yellow]" + f"[green]{target_name}[/green]")
         os.system('cls')
         return main()
@@ -64,7 +69,7 @@ def main():
     walk_directory(pathlib.Path(directory), tree)
     console.print(tree)
     rainbow = RainbowHighlighter()
-    console.print(rainbow("\nMake sure target folder in same directory in project folder.\n"))
+    console.print(rainbow("\nMake sure target folder in same directory as project folder.\n"))
 
     console.print("Options\n\
     1. [green]Generate ics file[/green]\n\
@@ -98,24 +103,12 @@ def main():
                 console.print("[red]Operation aborted.[/red]")
         elif choice == "4":
             new_target_folder = input("New target folder name: ")
-            with open("settings.json","r") as file:
-                init_settings = json.load(file)
-                init_settings["target_folder"] = new_target_folder
-                file.close()
-            with open("settings.json", "w") as file:
-                json.dump(init_settings, file)
-                file.close()
+            update_settings(new_target_folder,"")
             console.print("[yellow]Target folder set to [/yellow]" + f"[green]{new_target_folder}[/green]")
             console.print("Input 'clr' to refresh page.")
         elif choice == "5":
             new_start_date = input("New start date: ")
-            with open("settings.json","r") as file:
-                init_settings = json.load(file)
-                init_settings["start_date"] = new_start_date
-                file.close()
-            with open("settings.json", "w") as file:
-                json.dump(init_settings, file)
-                file.close()
+            update_settings("",new_start_date)
             console.print("[yellow]Start Date set to [/yellow]" + f"[green]{new_start_date}[/green]")
             console.print("Input 'clr' to refresh page.")
         elif choice == "6":

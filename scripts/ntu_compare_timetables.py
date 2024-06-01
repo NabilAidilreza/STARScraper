@@ -236,6 +236,8 @@ def compare_grp_timetables(file_name_array,wk_num,start_date):
     if not os.path.exists("comparison_tables"):
         os.makedirs("comparison_tables")
     file_name = f"comparison_tables\\WEEK_" + str(wk_num) + "_TABLE.txt"
+    final_dir = os.path.abspath(file_name)
+    console.print(f"[success]Txt file has been created for reference.[/success] \n[warning]File is saved here:[/warning] {final_dir}",style="bold yellow")
     console.save_text(file_name)
     return file_name
 

@@ -125,8 +125,6 @@ def generate_ics_file(FILE_NAME,START_DATE):
     # Get the absolute path of the saved file
     main_dir = os.path.dirname(os.path.abspath(FINAL_FILE_NAME))
     final_dir = main_dir+"\\calendars\\"+FINAL_FILE_NAME
-    print(main_dir)
-    print(final_dir)
     os.replace(main_dir+"\\"+FINAL_FILE_NAME, final_dir)
     console.print(f"[success]Calender file has been created.[/success] \n[warning]File is saved here:[/warning] {final_dir}",style="bold yellow")
 

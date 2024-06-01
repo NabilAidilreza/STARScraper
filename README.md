@@ -1,5 +1,5 @@
 <p align="center" width="100%">
-    <img width="33%" src="https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/71247a05-0fea-41b0-9271-0fd05d1aaedf"> 
+    <img src="https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/71247a05-0fea-41b0-9271-0fd05d1aaedf"> 
 </p>
 
 ## Desciption

@@ -8,6 +8,11 @@ A python program that extracts your modules and timings from a HTML copy of your
 
 ![DEMO](https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/97596935-beaa-4098-ba9c-eefd5cbf31ef)
 
+![Recording2024-06-01164002-ezgif com-video-to-gif-converter](https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/72de282f-87c1-4b96-b11d-050ccfe39652)
+
+![Recording2024-06-01164002-ezgif com-video-to-gif-converter (1)](https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/b53b2a0f-b8a2-4342-a059-ab354d9e57a5)
+
+
 ## Disclaimer
 
 Only available in Python. 

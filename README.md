@@ -1,5 +1,5 @@
 
-# NTU Timetable Generator
+![banner](https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/71247a05-0fea-41b0-9271-0fd05d1aaedf)
 
 ## Desciption
 

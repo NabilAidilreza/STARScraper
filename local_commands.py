@@ -10,10 +10,9 @@ def main():
     target_folder = "YR1S2"
 
     #! ICS GENERATOR #
-    target_file_name = "STARS_NAME.html"
-    target_folder = "YR1S2"
-    target_path = target_folder + "\\" + target_file_name
-    generate_ics_file(target_path,start_date)
+    # target_file_name = "STARS_TEST.html"
+    # target_path = target_folder + "\\" + target_file_name
+    # generate_ics_file(target_path,start_date)
 
     #! COMPARE TIMETABLES #
     curr_dir = os.getcwd()

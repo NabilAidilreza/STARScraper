@@ -82,9 +82,8 @@ def main():
     1. [green]Generate ics file[/green]\n\
     2. [yellow]Compare timetables[/yellow]\n\
     3. [magenta]Delete old files[/magenta]\n\
-    4. [cyan]Change target folder[/cyan]\n\
-    5. [violet]Change start date[/violet]\n\
-    6. [red]Exit[/red]\n\
+    4. [cyan]Change settings[/cyan]\n\
+    5. [red]Exit[/red]\n\
     Input 'clr' to clear console\n")
     while True:
         choice = input("Input: ")
@@ -111,16 +110,22 @@ def main():
             else:
                 console.print("[red]Operation aborted.[/red]")
         elif choice == "4":
-            new_target_folder = input("New target folder name: ")
-            update_settings(new_target_folder,"")
-            console.print("[yellow]Target folder set to [/yellow]" + f"[green]{new_target_folder}[/green]")
-            console.print("Input 'clr' to refresh page.")
+            options = ["Change target folder","Change start date"]
+            prompt_option = prompt({"message": "Options: ",
+                "type": "fuzzy",
+                "choices": options})
+            chosen_option = prompt_option[0]
+            if chosen_option == "Change target folder":
+                new_target_folder = input("New target folder name: ")
+                update_settings(new_target_folder,"")
+                console.print("[yellow]Target folder set to [/yellow]" + f"[green]{new_target_folder}[/green]")
+                console.print("Input 'clr' to refresh page.")
+            if chosen_option == "Change start date":
+                new_start_date = input("New start date: ")
+                update_settings("",new_start_date)
+                console.print("[yellow]Start Date set to [/yellow]" + f"[green]{new_start_date}[/green]")
+                console.print("Input 'clr' to refresh page.")
         elif choice == "5":
-            new_start_date = input("New start date: ")
-            update_settings("",new_start_date)
-            console.print("[yellow]Start Date set to [/yellow]" + f"[green]{new_start_date}[/green]")
-            console.print("Input 'clr' to refresh page.")
-        elif choice == "6":
             break
         elif choice.lower() == "clear" or choice.lower() == "clr":
             os.system('cls')

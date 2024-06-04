@@ -509,21 +509,20 @@ def check_what_week_day(timeline,test_date):
 # Return sem week dates #
 def generate_timeline(start_date):
     timeline = []
-    num_of_weeks = 14 ### Same for every sem
+    num_of_weeks = 14 # Same for every semester
     sd = start_date.split("/")
     startday = datetime(int(sd[-1]), int(sd[1][1]) if sd[1][0] == "0" else int(sd[1]), int(sd[0]), 0, 0, 0)   
     for i in range(num_of_weeks):
         week = []
         if i == 0:
-            continue
+            continue # Skip the first iteration (week 0)
         elif i >= 8:
             pass
         else:
             i = i-1
-        for j in range(6):
-            date = startday + timedelta(days=(7*(i))+j)
-            date = date.strftime("%d/%m/%Y")
-            week.append(date) # Mon to Sat
+        for j in range(6): # Monday to Saturday
+            date = startday + timedelta(weeks=i,days=j)
+            week.append(date.strftime("%d/%m/%Y"))
         timeline.append(week)
     return timeline
 

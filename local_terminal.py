@@ -1,6 +1,7 @@
 import os
 import json
 import pathlib
+import webbrowser
 from scripts import *
 from rich.theme import Theme
 from rich.console import Console
@@ -81,9 +82,10 @@ def main():
     console.print("\nOptions\n\
     1. [green]Generate ics file[/green]\n\
     2. [yellow]Compare timetables[/yellow]\n\
-    3. [magenta]Delete old files[/magenta]\n\
-    4. [cyan]Change settings[/cyan]\n\
-    5. [red]Exit[/red]\n\
+    3. [violet]View generated tables[/violet]\n\
+    4. [magenta]Delete old files[/magenta]\n\
+    5. [cyan]Change settings[/cyan]\n\
+    6. [red]Exit[/red]\n\
     Input 'clr' to clear console\n")
     while True:
         choice = input("Input: ")
@@ -97,6 +99,17 @@ def main():
             wk = input("Week: ")
             gen = compare_grp_timetables(dir_list,int(wk),start_date)
         elif choice == "3":
+            directory = os.path.abspath("comparison_tables")
+            tree = make_dir_tree(directory)
+            table_names = walk_directory(pathlib.Path(directory), tree)
+            if table_names:
+                target_table = prompt({"message": "Table: ",
+                    "type": "fuzzy",
+                    "choices": table_names})
+                webbrowser.open("comparison_tables\\"+target_table[0])
+            else:
+                console.print("No tables detected.",style="red")
+        elif choice == "4":
             folders = ["calendars","comparison_tables"]
             for folder in folders:
                 directory = os.path.abspath(folder)
@@ -109,7 +122,7 @@ def main():
                 console.print("[green]Files deleted successfuly.[/green]")
             else:
                 console.print("[red]Operation aborted.[/red]")
-        elif choice == "4":
+        elif choice == "5":
             options = ["Change target folder","Change start date"]
             prompt_option = prompt({"message": "Options: ",
                 "type": "fuzzy",
@@ -125,7 +138,7 @@ def main():
                 update_settings("",new_start_date)
                 console.print("[yellow]Start Date set to [/yellow]" + f"[green]{new_start_date}[/green]")
                 console.print("Input 'clr' to refresh page.")
-        elif choice == "5":
+        elif choice == "6":
             break
         elif choice.lower() == "clear" or choice.lower() == "clr":
             os.system('cls')

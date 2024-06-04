@@ -13,20 +13,37 @@ from time import sleep
 
 #? Helper functions #
 def check_venue(venue_str):
-    pattern = r'\((.*?)\)'
-    match = re.search(pattern, venue_str)
-    if match:
-        venue = match.group(0)
-        return venue.replace("The ", "") if "The " in venue else venue
+    venue = "(?)"
+    if "[" not in venue_str or "]" not in venue_str:
+        return f"({venue_str})"
+    if "LHS" in venue:
+        venue = "Hive"
+    if "LHN" in venue:
+        venue = "Arc"
+    if "Lab" in venue:
+        venue = "Lab"
+    if venue[0] == "S":
+        venue = venue[:2]
     pattern = r'^.*?-'
     match = re.search(pattern, venue_str)
     if match:
-        return f"({match.group(0)[:-1]})"
-    if "LHS" in venue_str:
-        venue = "(Hive)"
-    if "LHN" in venue_str:
-        venue = "(Arc)"
-    return "-"
+        venue = match.group(0)[:-1]
+        if "LHS" in venue:
+            venue = "Hive"
+        if "LHN" in venue:
+            venue = "Arc"
+        if "Lab" in venue:
+            venue = "Lab"
+        if venue[0] == "S":
+            venue = venue[:2]
+        return f"({venue})"
+    else:
+        pattern = r'\((.*?)\)'
+        match = re.search(pattern, venue_str)
+        if match:
+            venue = match.group(0)
+            return venue.replace("The ", "") if "The " in venue else venue
+    return venue
 
 def get_name(file_name):
     return file_name.replace(".html","").split("_")[-1]
@@ -66,7 +83,7 @@ def validate_date(string):
 def compare_grp_timetables(file_names,wk_num,start_date):
     #? Console setup #
     custom_theme = Theme({"success":"bold green","error":"bold red","warning":"bold orange_red1","process":"blue_violet"})
-    console = Console(theme=custom_theme,record=True)
+    console = Console(theme=custom_theme,record=False)
 
     #? Check params #
     week_num_error = validate_week_number(wk_num)
@@ -93,8 +110,8 @@ def compare_grp_timetables(file_names,wk_num,start_date):
     teaching_wk = "Teaching Wk" + str(wk_num)
     DATES = {i: f"{timeline[i-1][0]} to {timeline[i-1][-2]}" for i in range(1, len(timeline))}
     #? For day indexing #
-    dayref = ["Mon","Tue","Wed","Thu","Fri"]
-    DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY"]
+    dayref = ["Mon","Tue","Wed","Thu","Fri","Sat"]
+    DAYS = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"]
     # For period index
     time_periods = {str(i).zfill(2): idx for idx, i in enumerate(range(8, 23))}
     #? For period printing #
@@ -122,14 +139,14 @@ def compare_grp_timetables(file_names,wk_num,start_date):
         file_names.remove(errorFile)
         console.print("File: " + errorFile + " removed from stack.",style="warning")
         console.print("Reason: " + check_file_name(errorFile),style="warning")
-        
     # Set up day tables #
     MONDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     TUESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     WEDNESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     THURSDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     FRIDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
-    WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY]
+    SATURDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
+    WEEK = [MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY,SATURDAY]
 
     console.print("Sorting events...",style="process")
 
@@ -162,6 +179,7 @@ def compare_grp_timetables(file_names,wk_num,start_date):
                             WEEK[day_index][i][start_index] = result
 
     console.print("Creating chart...",style="process")
+    console = Console(theme=custom_theme,record=True)
     console.print(f"\n\nTeaching Week {str(wk_num)} -> {DATES[wk_num]}")
     #? Lunch Logic #
     FREE = [{DAYS[_]:{}} for _ in range(len(DAYS))]
@@ -183,20 +201,24 @@ def compare_grp_timetables(file_names,wk_num,start_date):
             FREE[i][DAYS[i]][PERIODS[m] if m in [3,4,5] else ""] = [get_name(file_names[j]) for j in range(len(row)) if row[j] == ""]
             row.insert(0,PERIODS[m])
             table.add_row(*row)
-        console.print(table)
-        sleep(0.5)
+        if DAYS[i] != "SATURDAY":
+            console.print(table)
+            sleep(0.5)
 
     #? Lunch Table Creation #
-    lunch_table = Table(title="Possible Weekly Lunch Timings")
+    evenodd = "Even Wk" if wk_num % 2 == 0 else "Odd Wk"
+    lunch_table_title = f"Possible Weekly Lunch Timings ({evenodd})"
+    lunch_table = Table(title=lunch_table_title)
     lunch_table.add_column("Day",style="green",justify="center")
     lunch_table.add_column("Period",style="orange_red1",justify="center")
     lunch_table.add_column("Names",style="cyan")
+    lunch_table.add_column("Pax",style="yellow")
 
 
     free_timings = []
     for j in range(len(FREE)):
         day = FREE[j][DAYS[j]]
-        day_temp = [["",period,",".join(day[period])] for period in day.keys()]
+        day_temp = [["",period,",".join(day[period]),str(len(day[period]))] for period in day.keys()]
         day_temp.pop(0) if day_temp[0][1] == "" else day_temp
         day_temp[0][0] = dayref[j]
         free_timings.append(day_temp)
@@ -207,8 +229,8 @@ def compare_grp_timetables(file_names,wk_num,start_date):
 
     if not os.path.exists("comparison_tables"):
         os.makedirs("comparison_tables")
-    file_name = f"comparison_tables\\WEEK_" + str(wk_num) + "_TABLE.txt"
-    console.save_text(file_name)
+    file_name = f"comparison_tables\\WEEK_" + str(wk_num) + "_TABLE.html"
+    console.save_html(file_name)
     final_dir = os.path.abspath(file_name)
     console.print(f"[success]Txt file has been created for reference.[/success] \n[warning]File is saved here:[/warning] {final_dir}",style="bold yellow")
     return file_name

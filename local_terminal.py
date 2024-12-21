@@ -1,4 +1,5 @@
 import os
+import shutil
 import json
 import pathlib
 import webbrowser
@@ -65,14 +66,23 @@ def main():
             dir_list[i] = f"{target_folder}\\" + dir_list[i]
     except Exception:
         console.print("Folder not found!!!",style="red")
-        console.print("Please set to the correct folder...",style="yellow")
         rainbow = RainbowHighlighter()
-        console.print(rainbow("\nMake sure target folder in same directory as project folder.\n"))
-        target_name = input("Folder name: ")
-        update_settings(target_name,"")
-        console.print("[yellow]Target folder set to [/yellow]" + f"[green]{target_name}[/green]")
-        os.system('cls')
-        return main()
+        console.print("\nMake new target folder? '" + target_folder + "'",style="yellow")
+        option = input("Y/N: ")
+        if option.upper() == "Y":
+            current_directory = os.path.dirname(os.path.abspath(__file__))
+            new_folder_path = os.path.join(current_directory, target_folder)
+            os.makedirs(new_folder_path)
+            os.system('cls')
+            return main()
+        else:
+            console.print("\nPlease set to an existing folder...",style="yellow")
+            console.print("[red]Warning:[/red]" + " Make sure target folder in same directory as project folder.")
+            target_name = input("Folder name: ")
+            #console.print("[yellow]Target folder set to [/yellow]" + f"[green]{target_name}[/green]")
+            update_settings(target_name,"")
+            os.system('cls')
+            return main()
 
     directory = os.path.abspath(target_folder)
     tree = make_dir_tree(directory)
@@ -123,7 +133,7 @@ def main():
             else:
                 console.print("[red]Operation aborted.[/red]")
         elif choice == "5":
-            options = ["Change target folder","Change start date"]
+            options = ["Change target folder","Change start date","Delete existing folder"]
             prompt_option = prompt({"message": "Options: ",
                 "type": "fuzzy",
                 "choices": options})
@@ -138,6 +148,21 @@ def main():
                 update_settings("",new_start_date)
                 console.print("[yellow]Start Date set to [/yellow]" + f"[green]{new_start_date}[/green]")
                 console.print("Input 'clr' to refresh page.")
+            if chosen_option == "Delete existing folder":
+                existing_folder_name = input("Folder name: ")
+                try:
+                    current_directory = os.path.dirname(os.path.abspath(__file__))
+                    folder_path = os.path.join(current_directory, existing_folder_name)
+                    try:
+                        os.rmdir(folder_path)
+                    except Exception:
+                        shutil.rmtree(folder_path)
+                    console.print("Folder '" + existing_folder_name + "'" + " deleted.",style="red")
+                except Exception:
+                    console.print("Unable to delete folder.",style="red")
+                console.print("Input 'clr' to refresh page.")
+
+
         elif choice == "6":
             break
         elif choice.lower() == "clear" or choice.lower() == "clr":

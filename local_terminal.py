@@ -22,7 +22,7 @@ def main():
             target_folder = init_settings["target_folder"]
     except Exception:
         init_settings = {
-            "start_date": "15/08/2024",
+            "start_date": "15/01/2025",
             "target_folder": "TestFolder"
         }
         with open("settings.json", "w") as file:
@@ -79,7 +79,6 @@ def main():
             console.print("\nPlease set to an existing folder...",style="yellow")
             console.print("[red]Warning:[/red]" + " Make sure target folder in same directory as project folder.")
             target_name = input("Folder name: ")
-            #console.print("[yellow]Target folder set to [/yellow]" + f"[green]{target_name}[/green]")
             update_settings(target_name,"")
             os.system('cls')
             return main()
@@ -171,21 +170,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# # DEBUGGER #
-# generate_ics_file("STARS_FAZ.html","14/08/2023")
-
-# TIMETABLES_TO_COMPARE = ["STARS_NAB.html","STARS_JX.html","STARS_FAZ.html","STARS_TIM.html","STARS_YJ.html","STARS_ZY.html"]
-# Creates a text table to compare timetables -> input -> array of file names (STARS HTML), int week number of semester desired e.g Week 3
-# compare_grp_timetables(TIMETABLES_TO_COMPARE,2,"15/01/2024")
-
-# for i in range(2,8):
-#     gen = compare_grp_timetables(dir_list,i,"15/01/2024")
-
-# generate_ics_file("YR1S2_HTMLS\\STARS_NABIL.html","15/01/2024")
-
-# a = create_timetable_list("YR1S2_HTMLS\\STARS_NABIL.html")
-# for week in a:
-#     print("Week ",a.index(week),"\n\n")
-#     for m in week:
-#         print(m)

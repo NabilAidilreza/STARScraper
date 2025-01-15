@@ -117,6 +117,7 @@ def compare_grp_timetables(file_names,wk_num,start_date):
     #? For period printing #
     PERIODS = [f"{i:02}30to{(i+1):02}20" for i in range(8, 22)]
     timetables = []
+
     errorList = []
 
     # #! TEST CASE #
@@ -139,6 +140,7 @@ def compare_grp_timetables(file_names,wk_num,start_date):
         file_names.remove(errorFile)
         console.print("File: " + errorFile + " removed from stack.",style="warning")
         console.print("Reason: " + check_file_name(errorFile),style="warning")
+        
     # Set up day tables #
     MONDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
     TUESDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
@@ -158,6 +160,8 @@ def compare_grp_timetables(file_names,wk_num,start_date):
                 # Display formatting #
                 result = item[0] + " " + (item[9][:3] if item[9] == "Lec/Stu" else item[9]) + " " + check_venue(item[13])
                 week = item[14]
+                # For indicating "50" timings
+                is_fifty = False
                 if week == teaching_wk:
                     day = item[11]
                     day_index = dayref.index(day)
@@ -171,10 +175,20 @@ def compare_grp_timetables(file_names,wk_num,start_date):
                     if startstamp in time_periods:
                         start_index = time_periods[startstamp]
                         # Add mod to correct period #
+                        if datetime[8:] == "50":
+                            period_num += 1 # For display purposes
+                            is_fifty = True
                         if period_num >= 2:
-                            for m in range(period_num):
-                                WEEK[day_index][i][start_index] = result
+                            if is_fifty:
+                                for m in range(period_num-1):
+                                    WEEK[day_index][i][start_index] = result
+                                    start_index += 1
+                                WEEK[day_index][i][start_index] = result + " *"
                                 start_index += 1
+                            else:
+                                for m in range(period_num):
+                                    WEEK[day_index][i][start_index] = result
+                                    start_index += 1
                         else:
                             WEEK[day_index][i][start_index] = result
 
@@ -185,7 +199,7 @@ def compare_grp_timetables(file_names,wk_num,start_date):
     FREE = [{DAYS[_]:{}} for _ in range(len(DAYS))]
 
     def create_day_table(day):
-        table = Table(title=f"{day.capitalize()}")
+        table = Table(title=f"{day.capitalize()}",show_lines=False)
         table.add_column("Period",style="orange_red1",justify="center")
         for name in file_names:
             table.add_column(get_name(name),style="cyan",justify="center")

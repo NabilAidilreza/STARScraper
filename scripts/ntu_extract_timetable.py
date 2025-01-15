@@ -14,56 +14,33 @@ from openpyxl.styles import PatternFill, Font
 
 # Opens and read html content from html file #
 def read_html_file(file_name):
-    # Get the current directory of the script
     script_directory = os.path.dirname(os.path.abspath(__file__))
     main_directory = os.path.dirname(script_directory)
-    # Construct the file path by joining the script directory and the file name
     file_path = os.path.join(main_directory, file_name)
-    # Open the file in read mode and specify the encoding as utf-8
     with open(file_path, 'r', encoding='windows-1252') as file:
-        # Read the content of the file
         html_content = file.read()
-        # Return the HTML content
         return html_content
 
 # Convert html content to python list #
 def process_html_to_data(FILE_NAME):
-    # Set the name of the HTML file to be processed
     file_name = FILE_NAME
-    # Read the contents of the HTML file
     html_content = read_html_file(file_name)
-    # Create an empty list to store the table data
     table = []
-    # Parse the HTML content using BeautifulSoup
     soup = BeautifulSoup(html_content, 'html.parser')
-    # Find the main content section of the HTML
     mainContent = soup.find_all('table')[3]
-    # Find all the rows in the main content section
     content_Rows = mainContent.find_all('tr')
-    # Iterate over each row in the content_Rows list
     for row in content_Rows:
-        # Find all the data cells in the current row
         data = row.find_all('td')
-        # Create an empty list to store the processed row data
         temp_row = []
-        # Iterate over each data cell in the current row
         for d in data:
-            # Process the text by removing newlines
             process_text = d.text.replace('\n','')
-            # Replace any '\xa0' with an empty string
             if process_text == '\xa0':
                 process_text = ''
-            # Append the processed text to the temp_row list
             temp_row.append(process_text)
-        # Append the temp_row list (excluding the first element) to the table list
         table.append(temp_row[1:])
-    # Fix the last part of the table
     table[-1][0],table[-1][1] = table[-1][1],table[-1][0]
     table[-1][0] = "Total AU Registered"
     table[-1][-1] = ""
-    # Return the table data
-    #print("Reading HTML...")
-    # Output raw data in list form #
     return table
 
 ### -------------------------###
@@ -84,10 +61,8 @@ def get_week_from_remark(remark):
     week_str = remark.replace('Teaching Wk', '').strip()
     # Check if the remaining string is a digit
     if week_str.isdigit():
-        # If it is, return a list with that digit as the only element
         return [int(week_str)]
     else:
-        # If it's not a digit, return 0
         return 0
 
 ### -------------------------###
@@ -131,7 +106,10 @@ def further_process_data(table):
             if '-' in ele:
                 weeklist += list(range(*[int(x)+i for i,x in enumerate(ele.split('-'))]))
             else:
-                weeklist += [int(ele)]
+                try:
+                    weeklist += [int(ele)]
+                except:
+                    weeklist += [13]
         to_duplicate.append([i,weeklist])
     # Adjust duplicates #
     for d in to_duplicate:
@@ -359,7 +337,9 @@ def create_excel_timetable(FILE_NAME):
     workbook = openpyxl.load_workbook("weekly_data.xlsx")
     color_cells(workbook)
  
-### Info Gathering Functions ###
+#! CODE BELOW FOR TELEGRAM BOT
+
+### Info Gathering Functions ### 
 
 def compile_mods(data,start_date):
     SD = start_date.split("/")
@@ -563,11 +543,12 @@ def combine_NTU_dict(ldict, timeline, file_name):
     return final_dict
 
 def test():
-    test_data = create_timetable_list("STARS_NAB.html")
-    test_dict = compile_mods(test_data)
-    timeline = generate_timeline("15/01/2024")
-    #pretty_print(hello)
-    print_timeline(timeline)
+    test_data = create_timetable_list("STARS_NABIL.html")
+    test_dict = compile_mods(test_data,"15/03/2025")
+    timeline = generate_timeline("15/03/2025")
+    print(test_dict)
+    #print_timeline(timeline)
+
 
 
 

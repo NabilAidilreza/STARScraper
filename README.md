@@ -4,7 +4,10 @@
 
 ## Description
 
-A python program that extracts your modules and timings from a HTML copy of your NTU STARs Timetable.
+A Python tool designed to extract module details and timings from the HTML copy of your NTU STARs Timetable.
+
+## Use Case
+If you're a student at NTU and have downloaded your STARs Timetable as an HTML file (from the main planning page <b>NOT</b> weekly), this tool helps you quickly and efficiently extract your schedule into a format that's easier to manage, share, or analyze.
 
 ![DEMO](https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/97596935-beaa-4098-ba9c-eefd5cbf31ef)
 
@@ -34,8 +37,7 @@ Refer to requirements.txt.
 
 5. Run *local_terminal.py*
 
-## NOTE
-
+# NOTE ***
 
 #### File Naming
 

@@ -8,7 +8,7 @@ from rich.markup import escape
 from rich.text import Text
 from rich.tree import Tree
 
-#! Other functions and Rich Functions #
+#! Rich and Misc Functions #
 
 class RainbowHighlighter(Highlighter):
     def highlight(self, text):

@@ -6,8 +6,6 @@ from rich.console import Console
 from rich.theme import Theme
 from rich.table import Table
 from time import sleep
-# from prettytable import *
-
 
 #! FILE THAT MANAGES LOCAL TABLE COMPARISON #
 
@@ -49,7 +47,7 @@ def get_name(file_name):
     return file_name.replace(".html","").split("_")[-1]
 
 #? Error Checkers #
-def check_file_name(file_name):
+def check_file(file_name):
     if "_" not in file_name:
         return "Incorrect format. (No underscore in name)"
     if ".html" not in file_name:
@@ -57,7 +55,7 @@ def check_file_name(file_name):
     try:
         with open(file_name):
             pass
-        return ""
+        return "Something went wrong... [Check breakpoint]"
     except FileNotFoundError:
         return "File not found."
     
@@ -85,7 +83,7 @@ def compare_grp_timetables(file_names,wk_num,start_date):
     custom_theme = Theme({"success":"bold green","error":"bold red","warning":"bold orange_red1","process":"blue_violet"})
     console = Console(theme=custom_theme,record=False)
 
-    #? Check params #
+    #? Check input params #
     week_num_error = validate_week_number(wk_num)
     date_error = validate_date(start_date)
     if week_num_error != "":
@@ -117,14 +115,7 @@ def compare_grp_timetables(file_names,wk_num,start_date):
     #? For period printing #
     PERIODS = [f"{i:02}30to{(i+1):02}20" for i in range(8, 22)]
     timetables = []
-
     errorList = []
-
-    # #! TEST CASE #
-    # file_names[2] = "FAKE_FILE.html"
-    # file_names[3] = "YIKES_html"
-    # #! --------- #
-
     console.print("Reading files...",style="process")
 
     for file in file_names:
@@ -139,7 +130,7 @@ def compare_grp_timetables(file_names,wk_num,start_date):
     for errorFile in errorList:
         file_names.remove(errorFile)
         console.print("File: " + errorFile + " removed from stack.",style="warning")
-        console.print("Reason: " + check_file_name(errorFile),style="warning")
+        console.print("Reason: " + check_file(errorFile),style="warning")
         
     # Set up day tables #
     MONDAY = [["" for _ in range(14)] for _ in range(NUMBER_OF_PPL)]
@@ -228,7 +219,6 @@ def compare_grp_timetables(file_names,wk_num,start_date):
     lunch_table.add_column("Names",style="cyan")
     lunch_table.add_column("Pax",style="yellow")
 
-
     free_timings = []
     for j in range(len(FREE)):
         day = FREE[j][DAYS[j]]
@@ -248,54 +238,3 @@ def compare_grp_timetables(file_names,wk_num,start_date):
     final_dir = os.path.abspath(file_name)
     console.print(f"[success]Txt file has been created for reference.[/success] \n[warning]File is saved here:[/warning] {final_dir}",style="bold yellow")
     return file_name
-
-### REFERENCES ###
-# Course No 1
-# Title 2
-# AU 3
-# CourseType 4
-# S/U Grade option 5
-# GERType 6
-# IndexNumber 7
-# Status 8
-# Choice 9
-# ClassType 10
-# Group 11
-# Day 12
-# Time 13
-# Venue 14
-# Remark 15
-# Exam 16
-
-    # # Print and create txt file (BASIC TEXT)[REDACTED] #
-    # lst = []
-    # for name in file_names:
-    #     name = name.split("_")[1]
-    #     lst.append(name)
-    # def create_pretty_table():
-    #     x = PrettyTable()
-    #     x.field_names = lst
-    #     return x
-    # file_name = "comparison_tables\WEEK_" + str(wk_num) + "_TABLE.txt"
-    # f = open(file_name,"w")
-    # f.write("*-----------------------------------------------------------*\n")
-    # f.write("            TEACHING WEEK " + str(wk_num) + " -> " + DATES[wk_num] + "\n")
-    # f.write("*-----------------------------------------------------------*\n\n")
-    # for i in range(len(WEEK)):
-    #     x = create_pretty_table()
-    #     transposed_data = list(map(list, zip(*WEEK[i])))
-    #     if len(errorList) != 0:
-    #         transposed_data = [row[:-len(errorList)] for row in transposed_data]
-    #     x.add_rows(transposed_data)
-    #     fieldname = 'Period'
-    #     x._field_names.insert(0, fieldname) 
-    #     x._align[fieldname] = 'c' 
-    #     x._valign[fieldname] = 't' 
-    #     for n, _ in enumerate(x._rows): 
-    #         x._rows[n].insert(0, PERIODS[n]) 
-    #     f.write(DAYS[i]+"\n")
-    #     f.write(x.get_string() + '\n\n')
-    # f.close()
-    # print("\n\n !!! SUCCESS !!! \n\n")
-    # print("Txt file created... -> WEEK_" + str(wk_num) + "_TABLE.txt\n")
-    # return file_name

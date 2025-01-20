@@ -110,7 +110,6 @@ def generate_ics_file(FILE_NAME,START_DATE):
             event.add('categories', [category])
             cal.add_component(event)
     console.print("Writing calendar to .ics file...",style="bold yellow")
-    #print("Writing calendar to .ics file...")
     # Save the calendar to an .ics file
     with open('in.ics', 'wb') as f:
         f.write(cal.to_ical())
@@ -127,47 +126,5 @@ def generate_ics_file(FILE_NAME,START_DATE):
     final_dir = main_dir+"\\calendars\\"+FINAL_FILE_NAME
     os.replace(main_dir+"\\"+FINAL_FILE_NAME, final_dir)
     console.print(f"[success]Calender file has been created.[/success] \n[warning]File is saved here:[/warning] {final_dir}",style="bold yellow")
-
-    ### REFERENCE CODE ###
-    # Create an event #
-    #event = Event()
-    # Assign timestampe and UID #
-    #timestamp = datetime.now().strftime('%Y%m%dT%H%M%S')
-    #random_id = str(uuid.uuid4())
-    #uid = f'{timestamp}-{random_id}'
-    #event.add('uid', uid)
-    #event.add('dtstamp', datetime.now())
-    #event.add('summary', 'Event 1')
-    #event.add('location', 'Event 1')
-    #event.add('description', 'Event 1')
-    #event.add('dtstart', datetime(2023, 8, 15, 10, 0, 0))
-    #event.add('dtend', datetime(2023, 8, 15, 12, 0, 0))
-    #event.add('categories', ['Work'])
-    #cal.add_component(event)
-
-    ### REFERENCES ###
-    # Course No 1
-    # Title 2
-    # AU 3
-    # CourseType 4
-    # S/U Grade option 5
-    # GERType 6
-    # IndexNumber 7
-    # Status 8
-    # Choice 9
-    # ClassType 10
-    # Group 11
-    # Day 12
-    # Time 13
-    # Venue 14
-    # Wk 15
-    # Exam 16
-
-    # Summary -> Course Code + Course Name
-    # Location -> Location
-    # Description -> Class Type, Group, Remarks, Exam, AUs
-    # DTSTART -> Date + StartTime
-    # DTEND -> Date + EndTime
-    # Category -> Course Code
 
 

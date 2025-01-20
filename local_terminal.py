@@ -8,6 +8,7 @@ from rich.theme import Theme
 from rich.console import Console
 from rich.traceback import install
 from InquirerPy import prompt
+from time import sleep
 install()
 
 #! FILE FOR LOCAL EXECUTION OF CODES #
@@ -132,7 +133,7 @@ def main():
             else:
                 console.print("[red]Operation aborted.[/red]")
         elif choice == "5":
-            options = ["Change target folder","Change start date","Delete existing folder"]
+            options = ["Change target folder","Change start date","Delete existing folder","Exit"]
             prompt_option = prompt({"message": "Options: ",
                 "type": "fuzzy",
                 "choices": options})
@@ -160,9 +161,12 @@ def main():
                 except Exception:
                     console.print("Unable to delete folder.",style="red")
                 console.print("Input 'clr' to refresh page.")
-
-
+            if chosen_option == "Exit":
+                console.print("Operation aborted.",style="red")
         elif choice == "6":
+            for i in range(3,0,-1):
+                console.print(f"Exiting program in {i}...",end="\r",style="red")
+                sleep(1)
             break
         elif choice.lower() == "clear" or choice.lower() == "clr":
             os.system('cls')

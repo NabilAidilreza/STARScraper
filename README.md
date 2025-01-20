@@ -33,7 +33,7 @@ If you're a student at NTU and have downloaded your STARs Timetable as an HTML f
 
 #### File Naming
 
-DO RENAME YOUR HTML FILE to "STARS_{placeholder}.html" to write the correct file name so that program can run.
+DO RENAME YOUR HTML FILE to "STARS_{placeholder}.html" to write the correct file name so that program can run. Refer to samples folder.
 
 #### Start Date
 

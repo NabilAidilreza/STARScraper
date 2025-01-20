@@ -11,14 +11,6 @@ If you're a student at NTU and have downloaded your STARs Timetable as an HTML f
 
 ![DEMO](https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/97596935-beaa-4098-ba9c-eefd5cbf31ef)
 
-## Disclaimer
-
-Only available in Python. 
-
-To download required library dependencies on your own computer.
-
-Refer to requirements.txt.
-
 ## Main functions
 
 - Generates an .ics file (calendar file) to use on Outlook / Google Calendar for better viewing.

@@ -11,37 +11,43 @@ from time import sleep
 
 #? Helper functions #
 def check_venue(venue_str):
-    venue = "(?)"
+    def normalize(v):
+        v = v.strip().upper()
+        if "CSKL" in v: return "CSKL"
+        if "LHS" in v: return "Hive"
+        if "LHN" in v: return "Arc"
+        if "LAB" in v: return "Lab"
+        if v.startswith("S"): return v[:2]
+        return v
+
+    # Early return if no brackets
     if "[" not in venue_str or "]" not in venue_str:
         return f"({venue_str})"
-    if "LHS" in venue:
-        venue = "Hive"
-    if "LHN" in venue:
-        venue = "Arc"
-    if "Lab" in venue:
-        venue = "Lab"
-    if venue[0] == "S":
-        venue = venue[:2]
-    pattern = r'^.*?-'
-    match = re.search(pattern, venue_str)
+
+    # Case 1: code like CSKL12 at the start
+    m = re.match(r'^([A-Za-z]{3,8})\d+', venue_str.strip())
+    if m:
+        return f"({normalize(m.group(1))})"
+
+    # Case 2: check inside square brackets for known names
+    m = re.search(r'\[([^\]]+)\]', venue_str)
+    if m:
+        inside = m.group(1)
+        if "COMP LAB" in inside.upper() or "COMPUTER LAB" in inside.upper():
+            return "(COMP)"
+
+    # Case 3: extract before dash
+    match = re.search(r'^.*?-', venue_str)
     if match:
-        venue = match.group(0)[:-1]
-        if "LHS" in venue:
-            venue = "Hive"
-        if "LHN" in venue:
-            venue = "Arc"
-        if "Lab" in venue:
-            venue = "Lab"
-        if venue[0] == "S":
-            venue = venue[:2]
-        return f"({venue})"
-    else:
-        pattern = r'\((.*?)\)'
-        match = re.search(pattern, venue_str)
-        if match:
-            venue = match.group(0)
-            return venue.replace("The ", "") if "The " in venue else venue
-    return venue
+        return f"({normalize(match.group(0)[:-1])})"
+
+    # Case 4: extract from parentheses
+    match = re.search(r'\((.*?)\)', venue_str)
+    if match:
+        v = match.group(1).replace("The ", "")
+        return f"({normalize(v)})"
+
+    return "(?)"
 
 def get_name(file_name):
     return file_name.replace(".html","").split("_")[-1]
@@ -148,6 +154,9 @@ def compare_grp_timetables(file_names,wk_num,start_date):
         #? lst[i] => person items
         for week in timetables[i]:
             for item in week:
+                status = item[7]
+                if status == "Waitlist" or status == "*Exempted" or status != "Registered":
+                    continue
                 # Display formatting #
                 result = item[0] + " " + (item[9][:3] if item[9] == "Lec/Stu" else item[9]) + " " + check_venue(item[13])
                 week = item[14]

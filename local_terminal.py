@@ -1,4 +1,5 @@
 import os
+import sys
 import shutil
 import json
 import pathlib
@@ -48,12 +49,13 @@ def main():
     custom_theme = Theme({"green":"bold green","yellow":"yellow","cyan":"bold bright_cyan","red":"bold red","magenta":"bold bright_magenta","violet":"bold blue_violet"})
     console = Console(theme=custom_theme)
 
-    console.print(" ______ |\_______________ ___   ___________________  _____  __________  _________\n\
- \     \| |__    ___/    |   \ /   _____/__    ___/ /  _  \ \______   \/   _____/\n\
- /   |    | |    |  |    |   / \_____  \  |    |   /  /_\  \ |       _/\_____  \ \n\
-/    |\   | |    |  |    |  /  /        \ |    |  /    |    \|    |   \/        \\\n\
-\____| \  / |____|  |______/  /_______  / |____|  \____|__  /|____|_  /_______  /\n\
-        \/                            \/                  \/        \/        \/ ")
+    console.print("  _________________________ __________  _________ \n\
+ /   _____/\__    ___/  _  \\______   \/   _____/ ________________  ______   ___________ \n\
+ \_____  \   |    | /  /_\  \|       _/\_____  \_/ ___\_  __ \__  \ \____ \_/ __ \_  __ \\\n\
+ /        \  |    |/    |    \    |   \/        \  \___|  | \// __ \|  |_> >  ___/|  | \/\n\
+/_______  /  |____|\____|__  /____|_  /_______  /\___  >__|  (____  /   __/ \___  >__|   \n\
+        \/                 \/       \/        \/     \/           \/|__|        \/      ")
+
     console.print("\t\t\t===== [green]NTU STARS Project[/green] =====\n",style="blue")
     console.print("Start date: ",start_date,style="yellow")
     console.print("[yellow]Current target folder:[/yellow] " + f"[cyan]{target_folder}[/cyan]")
@@ -93,9 +95,10 @@ def main():
     1. [green]Generate ics file[/green]\n\
     2. [yellow]Compare timetables[/yellow]\n\
     3. [violet]View generated tables[/violet]\n\
-    4. [magenta]Delete old files[/magenta]\n\
-    5. [cyan]Change settings[/cyan]\n\
-    6. [red]Exit[/red]\n\
+    4. [blue]Check exam schedules[/blue]\n\
+    5. [magenta]Delete old files[/magenta]\n\
+    6. [cyan]Change settings[/cyan]\n\
+    7. [red]Exit[/red]\n\
     Input 'clr' to clear console\n")
     while True:
         choice = input("Input: ")
@@ -120,6 +123,8 @@ def main():
             else:
                 console.print("No tables detected.",style="red")
         elif choice == "4":
+            check_exam_schedules(dir_list,start_date)
+        elif choice == "5":
             folders = ["calendars","comparison_tables"]
             for folder in folders:
                 directory = os.path.abspath(folder)
@@ -132,7 +137,7 @@ def main():
                 console.print("[green]Files deleted successfuly.[/green]")
             else:
                 console.print("[red]Operation aborted.[/red]")
-        elif choice == "5":
+        elif choice == "6":
             options = ["Change target folder","Change start date","Delete existing folder","Exit"]
             prompt_option = prompt({"message": "Options: ",
                 "type": "fuzzy",
@@ -163,7 +168,7 @@ def main():
                 console.print("Input 'clr' to refresh page.")
             if chosen_option == "Exit":
                 console.print("Operation aborted.",style="red")
-        elif choice == "6":
+        elif choice == "7":
             for i in range(3,0,-1):
                 console.print(f"Exiting program in {i}...",end="\r",style="red")
                 sleep(1)
@@ -171,6 +176,7 @@ def main():
         elif choice.lower() == "clear" or choice.lower() == "clr":
             os.system('cls')
             return main()
+    sys.exit()
 
 if __name__ == "__main__":
     main()

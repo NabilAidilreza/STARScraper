@@ -5,6 +5,8 @@ from rich.theme import Theme
 from rich.table import Table
 from collections import defaultdict
 
+from datetime import datetime
+
 def split_date_time(exam_str):
     # Example: "04-Dec-2025 0900to1100 hrs "
     exam_str = exam_str.strip().replace(" hrs", "")
@@ -85,8 +87,11 @@ def check_exam_schedules(file_names,start_date):
             exam_schedule[(date, time)].append((person, course))
 
     # Sort the exam slots (date, time) for ordered table display
-    sorted_slots = sorted(exam_schedule.keys())
-
+    # sorted_slots = sorted(exam_schedule.keys())
+    sorted_slots = sorted(
+        exam_schedule.keys(),
+        key=lambda dt: datetime.strptime(dt[0], "%d-%b-%Y")  # dt[0] is the date string
+    )
     console = Console()
     table = Table(title="Exam Schedule Comparison")
 

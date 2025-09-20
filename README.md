@@ -23,7 +23,7 @@
 ## Quick Start  
 1. Clone the repo.  
 2. Install dependencies: `pip install -r requirements.txt`.  
-3. Download your STARs Planner HTML file (from the main planning page, **not** weekly view).  
+3. Download your STARs Planner HTML file (from the main planning page, **NOT** the weekly view).
 4. Save the file in the project directory and rename it to `STARS_{placeholder}.html` (e.g., `STARS_YourName.html`).  
 5. Run `local_terminal.py`.  
 

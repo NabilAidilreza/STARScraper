@@ -1,0 +1,31 @@
+[project]
+name = "stars"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "attr>=0.3.2",
+    "beautifulsoup4>=4.14.3",
+    "boto3>=1.42.14",
+    "click>=8.3.1",
+    "icalendar>=6.3.2",
+    "inquirerpy>=0.3.4",
+    "openpyxl>=3.1.5",
+    "pytelegrambotapi>=4.29.1",
+    "requests>=2.32.5",
+    "rich>=14.2.0",
+    "sqlalchemy>=2.0.45",
+    "typing-extensions>=4.15.0",
+    "x-wr-timezone>=2.0.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.6.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

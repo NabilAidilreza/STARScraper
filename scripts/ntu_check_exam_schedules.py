@@ -1,36 +1,41 @@
-from .ntu_extract_timetable import create_timetable_list
-from .ntu_compare_timetables import validate_date,check_file,get_name
-from rich.console import Console
-from rich.theme import Theme
-from rich.table import Table
+import re
 from collections import defaultdict
-
 from datetime import datetime
+
+from rich.console import Console
+from rich.table import Table
+from rich.theme import Theme
+
+from .ntu_compare_timetables import check_file, get_name, validate_date
+from .ntu_extract_timetable import COURSE_CODE, EXAM, STATUS, create_timetable_list
+
+_EXAM_DATE_RE = re.compile(r'^\d{2}-[A-Za-z]{3}-\d{4}$')
 
 def split_date_time(exam_str):
     # Example: "04-Dec-2025 0900to1100 hrs "
     exam_str = exam_str.strip().replace(" hrs", "")
+    if " " not in exam_str:
+        return exam_str, ""
     date_part, time_part = exam_str.split(" ", 1)
+    if not _EXAM_DATE_RE.match(date_part):
+        return exam_str, ""
     return date_part, time_part
 
-def check_exam_schedules(file_names,start_date):
+def check_exam_schedules(file_names, start_date):
     #? Console setup #
-    custom_theme = Theme({"success":"bold green","error":"bold red","warning":"bold orange_red1","process":"blue_violet"})
-    console = Console(theme=custom_theme,record=False)
+    custom_theme = Theme({"success": "bold green", "error": "bold red", "warning": "bold orange_red1", "process": "blue_violet"})
+    console = Console(theme=custom_theme, record=False)
 
     #? Check input params #
     date_error = validate_date(start_date)
     if date_error != "":
-        console.print("Program exited.",style="error")
-        console.print("Reason: " + date_error,style="warning")
+        console.print("Program exited.", style="error")
+        console.print("Reason: " + date_error, style="warning")
         return
 
-    NUMBER_OF_PPL = len(file_names)
-
+    console.print("Reading files...", style="process")
     timetables = []
     errorList = []
-    console.print("Reading files...",style="process")
-
     for file in file_names:
         try:
             timetable = create_timetable_list(file)[1:]
@@ -39,13 +44,17 @@ def check_exam_schedules(file_names,start_date):
         except Exception:
             console.print("File: " + file + " -> [error]error![/error]")
             errorList.append(file)
-    
+
     for errorFile in errorList:
         file_names.remove(errorFile)
-        console.print("File: " + errorFile + " removed from stack.",style="warning")
-        console.print("Reason: " + check_file(errorFile),style="warning")
+        console.print("File: " + errorFile + " removed from stack.", style="warning")
+        console.print("Reason: " + check_file(errorFile), style="warning")
 
-    console.print("Sorting events...",style="process")
+    if not file_names:
+        console.print("No valid timetable files to compare.", style="error")
+        return
+
+    console.print("Sorting events...", style="process")
 
     exam_dates = []
     #? Sorting data #
@@ -55,29 +64,29 @@ def check_exam_schedules(file_names,start_date):
 
         for week in timetables[i]:
             for item in week:
-                status = item[7]
-                # Skip exams if status is Waitlist, Exempted, or not Registered
-                if status == "Waitlist" or status == "*Exempted" or status != "Registered":
+                if item[STATUS] != "Registered":
                     continue
-                
-                # Only consider exams with a valid exam date/time (not "Not Applicable")
-                if item[15] != "Not Applicable":
-                    date, timing = split_date_time(item[15])  # Split exam date/time
-                    exam_info = (item[0], date, timing)       # Tuple: (course, date, timing)
-                    
-                    # Add only if exam_info is not already recorded for this person
-                    if exam_info not in seen_exams:
-                        seen_exams.add(exam_info)
-                        unique_exams.append(list(exam_info))
-                else:
+
+                # Only consider exams with a valid exam date/time (not "Not Applicable") #
+                exam_text = item[EXAM].strip()
+                if exam_text == "" or exam_text == "Not Applicable":
                     continue
+                date, timing = split_date_time(exam_text)  # Split exam date/time
+                if not date or not timing:
+                    continue
+                exam_info = (item[COURSE_CODE], date, timing)  # Tuple: (course, date, timing)
+
+                # Add only if exam_info is not already recorded for this person #
+                if exam_info not in seen_exams:
+                    seen_exams.add(exam_info)
+                    unique_exams.append(list(exam_info))
 
         exam_dates.append(unique_exams)   # Add this person's unique exams to master list
 
     # Build a schedule dictionary keyed by (date, time) holding a list of (person, course) tuples
     exam_schedule = defaultdict(list)
 
-    # Extract person names from filenames (assumed function get_name exists)
+    # Extract person names from filenames
     names = [get_name(filename) for filename in file_names]
 
     # Populate exam_schedule with person and their courses for each exam slot
@@ -86,11 +95,14 @@ def check_exam_schedules(file_names,start_date):
         for course, date, time in exams:
             exam_schedule[(date, time)].append((person, course))
 
-    # Sort the exam slots (date, time) for ordered table display
-    # sorted_slots = sorted(exam_schedule.keys())
+    if not exam_schedule:
+        console.print("No exam slots found in the provided timetables.", style="warning")
+        return
+
+    # Sort the exam slots by date for ordered table display
     sorted_slots = sorted(
         exam_schedule.keys(),
-        key=lambda dt: datetime.strptime(dt[0], "%d-%b-%Y")  # dt[0] is the date string
+        key=lambda dt: datetime.strptime(dt[0], "%d-%b-%Y")
     )
     console = Console()
     table = Table(title="Exam Schedule Comparison")
@@ -111,8 +123,11 @@ def check_exam_schedules(file_names,start_date):
         "magenta",        # medium magenta
     ]
 
-    # Create a mapping from each unique date to a specific color
-    unique_dates = sorted({date for date, _ in sorted_slots})
+    # Create a mapping from each unique date to a specific color (chronologically ordered)
+    unique_dates = sorted(
+        {date for date, _ in sorted_slots},
+        key=lambda d: datetime.strptime(d, "%d-%b-%Y"),
+    )
     date_color_map = {date: date_colors[i % len(date_colors)] for i, date in enumerate(unique_dates)}
 
     # Populate the table rows

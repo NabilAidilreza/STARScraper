@@ -1,14 +1,15 @@
 import os
-import shutil
 import pathlib
+import shutil
 from random import randint
-from rich.highlighter import Highlighter
+
 from rich.filesize import decimal
+from rich.highlighter import Highlighter
 from rich.markup import escape
 from rich.text import Text
 from rich.tree import Tree
 
-#! Rich and Misc Functions #
+# Rich and Misc Functions #
 
 class RainbowHighlighter(Highlighter):
     def highlight(self, text):
@@ -50,7 +51,7 @@ def walk_directory(directory: pathlib.Path, tree: Tree) -> None:
             text_filename.stylize(f"link file://{path}")
             file_size = path.stat().st_size
             text_filename.append(f" ({decimal(file_size)})", "blue")
-            icon = "🗃️ " if path.suffix == ".html" else "📄 "
+            icon = "🗓️  " if path.suffix == ".html" else "📄  "
             tree.add(Text(icon) + text_filename)
     return file_names
 

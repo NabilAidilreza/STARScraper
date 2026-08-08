@@ -57,6 +57,7 @@ def main():
         \/                 \/       \/        \/     \/           \/|__|        \/      ")
 
     console.print("\t\t\t===== [green]NTU STARS Project[/green] =====\n",style="blue")
+    console.print("\n[green]Both standard planner and weekly grid formats are auto-detected.[/green]\n")
     console.print("Start date: ",start_date,style="yellow")
     console.print("[yellow]Current target folder:[/yellow] " + f"[cyan]{target_folder}[/cyan]")
 
@@ -93,12 +94,13 @@ def main():
 
     console.print("\nOptions\n\
     1. [green]Generate ics file[/green]\n\
-    2. [yellow]Compare timetables[/yellow]\n\
-    3. [violet]View generated tables[/violet]\n\
-    4. [blue]Check exam schedules[/blue]\n\
-    5. [magenta]Delete old files[/magenta]\n\
-    6. [cyan]Change settings[/cyan]\n\
-    7. [red]Exit[/red]\n\
+    2. [green]Generate .ics file (exams)[/green]\n\
+    3. [yellow]Compare timetables[/yellow]\n\
+    4. [violet]View generated tables[/violet]\n\
+    5. [blue]Check exam schedules[/blue]\n\
+    6. [magenta]Delete old files[/magenta]\n\
+    7. [cyan]Change settings[/cyan]\n\
+    8. [red]Exit[/red]\n\
     Input 'clr' to clear console\n")
     while True:
         choice = input("Input: ")
@@ -109,9 +111,15 @@ def main():
             target_path = target_folder + "\\" + target_file_name[0]
             generate_ics_file(target_path,start_date)
         elif choice == "2":
+            target_file_name = prompt({"message": "Target file name: ",
+                "type": "fuzzy",
+                "choices": file_names})
+            target_path = target_folder + "\\" + target_file_name[0]
+            generate_exam_ics_file(target_path)
+        elif choice == "3":
             wk = input("Week: ")
             gen = compare_grp_timetables(dir_list,int(wk),start_date)
-        elif choice == "3":
+        elif choice == "4":
             directory = os.path.abspath("comparison_tables")
             tree = make_dir_tree(directory)
             table_names = walk_directory(pathlib.Path(directory), tree)
@@ -122,9 +130,9 @@ def main():
                 webbrowser.open("comparison_tables\\"+target_table[0])
             else:
                 console.print("No tables detected.",style="red")
-        elif choice == "4":
-            check_exam_schedules(dir_list,start_date)
         elif choice == "5":
+            check_exam_schedules(dir_list,start_date)
+        elif choice == "6":
             folders = ["calendars","comparison_tables"]
             for folder in folders:
                 directory = os.path.abspath(folder)
@@ -137,7 +145,7 @@ def main():
                 console.print("[green]Files deleted successfuly.[/green]")
             else:
                 console.print("[red]Operation aborted.[/red]")
-        elif choice == "6":
+        elif choice == "7":
             options = ["Change target folder","Change start date","Delete existing folder","Exit"]
             prompt_option = prompt({"message": "Options: ",
                 "type": "fuzzy",
@@ -168,7 +176,7 @@ def main():
                 console.print("Input 'clr' to refresh page.")
             if chosen_option == "Exit":
                 console.print("Operation aborted.",style="red")
-        elif choice == "7":
+        elif choice == "8":
             for i in range(3,0,-1):
                 console.print(f"Exiting program in {i}...",end="\r",style="red")
                 sleep(1)

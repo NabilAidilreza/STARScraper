@@ -1,11 +1,61 @@
-import os
 import csv
-from datetime import datetime,timedelta
-from bs4 import BeautifulSoup
-import openpyxl
-from openpyxl.styles import PatternFill, Font
+import os
+from datetime import datetime, timedelta
 
-#! FILE THAT MANAGES ALL BASIC FUNCTIONS OF PROJECT #
+import openpyxl
+from bs4 import BeautifulSoup
+from openpyxl.styles import Font, PatternFill
+
+# FILE THAT MANAGES ALL BASIC FUNCTIONS OF PROJECT #
+
+#? Named column indices for a parsed course row (16 columns, after slicing the radio cell) #
+COURSE_CODE = 0
+COURSE_TITLE = 1
+AU = 2
+COURSE_TYPE = 3
+SU_OPTION = 4
+GER_TYPE = 5
+INDEX_NUMBER = 6
+STATUS = 7
+CHOICE = 8
+CLASS_TYPE = 9
+GROUP = 10
+DAY = 11
+TIME = 12
+VENUE = 13
+REMARK = 14
+EXAM = 15
+NUM_COLUMNS = 16
+
+NUM_TEACHING_WEEKS = 13
+# NTU schedule: 13 teaching weeks + 1 recess week. Recess always falls after teaching week 7,
+# so teaching weeks 1-7 map to calendar weeks 1-7, and weeks 8-13 map to calendar weeks 9-14.
+RECESS_AFTER_WEEK = 7
+
+DAY_ORDER = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+DAY_INDEX = {day: idx for idx, day in enumerate(DAY_ORDER)}
+
+### Date Helpers ###
+
+def parse_start_date(start_date):
+    """Parse a DD/MM/YYYY string into a datetime (start of the day)."""
+    day, month, year = start_date.split("/")
+    return datetime(int(year), int(month), int(day), 0, 0, 0)
+
+
+def teaching_week_start(teaching_week, start_date):
+    """Return the Monday datetime of the given teaching week (1-13).
+
+    Accounts for the recess week (after teaching week 7): weeks 1-7 are offset by
+    (week - 1), weeks 8-13 are offset by (week) to skip the recess week.
+    """
+    startday = parse_start_date(start_date)
+    if teaching_week <= RECESS_AFTER_WEEK:
+        week_offset = teaching_week - 1
+    else:
+        week_offset = teaching_week
+    return startday + timedelta(weeks=week_offset)
+
 
 ### HTML Reader Functions ###
 # Opens and read html content from html file #
@@ -13,31 +63,56 @@ def read_html_file(file_name):
     script_directory = os.path.dirname(os.path.abspath(__file__))
     main_directory = os.path.dirname(script_directory)
     file_path = os.path.join(main_directory, file_name)
-    with open(file_path, 'r', encoding='windows-1252') as file:
-        html_content = file.read()
-        return html_content
+    for encoding in ('utf-8', 'windows-1252'):
+        try:
+            with open(file_path, 'r', encoding=encoding) as file:
+                return file.read()
+        except UnicodeDecodeError:
+            continue
+    with open(file_path, 'rb') as file:
+        return file.read().decode('utf-8', errors='replace')
+
 
 # Convert html content to python list #
 def process_html_to_data(FILE_NAME):
-    file_name = FILE_NAME
-    html_content = read_html_file(file_name)
+    html_content = read_html_file(FILE_NAME)
     table = []
     soup = BeautifulSoup(html_content, 'html.parser')
-    mainContent = soup.find_all('table')[3]
+    mainContent = _find_timetable_table(soup)
     content_Rows = mainContent.find_all('tr')
     for row in content_Rows:
         data = row.find_all('td')
         temp_row = []
         for d in data:
-            process_text = d.text.replace('\n','')
-            if process_text == '\xa0':
-                process_text = ''
+            process_text = d.text.replace('\n', '').replace('\xa0', '')
             temp_row.append(process_text)
+        if not temp_row:
+            continue
+        # Skip the "Total AU Registered" footer row entirely (label may sit in either
+        # of the first two cells depending on the STARS layout)
+        if any(cell.strip() == "Total AU Registered" for cell in temp_row[:2]):
+            continue
         table.append(temp_row[1:])
-    table[-1][0],table[-1][1] = table[-1][1],table[-1][0]
-    table[-1][0] = "Total AU Registered"
-    table[-1][-1] = ""
+    # Drop any fully-empty rows
+    table = [row for row in table if row]
     return table
+
+
+def _find_timetable_table(soup):
+    """Locate the registered-courses table robustly instead of hardcoding table index [3].
+
+    The courses table is the one whose last row begins with "Total AU Registered".
+    """
+    for row in soup.find_all('tr'):
+        cells = [cell.text.replace('\n', '').strip() for cell in row.find_all('td')]
+        if cells and cells[0] == "Total AU Registered":
+            return row.find_parent('table')
+    # Fallback: the historical layout put the course list at index 3
+    tables = soup.find_all('table')
+    if len(tables) > 3:
+        return tables[3]
+    raise ValueError("Could not locate the course timetable table in the HTML.")
+
 
 ### -------------------------###
 
@@ -45,21 +120,40 @@ def process_html_to_data(FILE_NAME):
 
 # Sort by day helper func #
 def get_day_number(day):
-    # Define a dictionary to map full weekday names to their numeric representation
-    days_mapping = {'Mon': 0, 'Tue': 1, 'Wed': 2, 'Thu': 3, 'Fri': 4, 'Sat': 5, 'Sun': 6}
-    # Extract the abbreviated weekday name from the full name (assuming the first 3 characters represent the abbreviation)
-    abbreviated_day = day[:3]
-    return days_mapping.get(abbreviated_day,-1)
+    # Returns 0-6 for Mon-Sun, -1 for unknown
+    return DAY_INDEX.get(day, -1)
+
 
 # Sort by week helper func #
 def get_week_from_remark(remark):
     # Remove the 'Teaching Wk' prefix from the remark string
     week_str = remark.replace('Teaching Wk', '').strip()
-    # Check if the remaining string is a digit
     if week_str.isdigit():
-        return [int(week_str)]
-    else:
-        return 0
+        return int(week_str)
+    return 0
+
+
+# Expand a week remark like "Teaching Wk1-13" / "Teaching Wk2,6" into a list of week numbers #
+def expand_weeks(remark):
+    spec = remark.replace('Teaching Wk', '').strip()
+    weeks = []
+    for part in spec.split(','):
+        part = part.strip()
+        if not part:
+            continue
+        if '-' in part:
+            try:
+                start, end = part.split('-')
+                weeks.extend(range(int(start), int(end) + 1))
+            except ValueError:
+                continue
+        else:
+            try:
+                weeks.append(int(part))
+            except ValueError:
+                continue
+    return weeks
+
 
 ### -------------------------###
 
@@ -68,114 +162,101 @@ def get_week_from_remark(remark):
 # Settle blanks, standarization, general cleaning, sorting #
 def process_data(FILE_NAME):
     # Prepare Data #
-    file_name = FILE_NAME
-    table = []
-    table = process_html_to_data(file_name)
-    # Fill up blanks #
-    for i in range(len(table)):
-        for m in range(len(table[i])):
+    table = process_html_to_data(FILE_NAME)
+    # Fill up blanks (skip the header row to avoid wrapping to the last row) #
+    for i in range(1, len(table)):
+        for m in range(min(len(table[i]), len(table[i - 1]))):
             if table[i][m] == '':
-                table[i][m] = table[i-1][m]
-    # Clean Last Row #
-    table[-1][0],table[-1][1] = table[-1][1],table[-1][0]
-    table[-1][0] = "Total AU Registered"
-    table[-1][-1] = ""
-    course_info = table
+                table[i][m] = table[i - 1][m]
     # Clean table #
-    course_info = [course for course in course_info if all(course)]
+    course_info = [course for course in table if all(course)]
     # Sort by Day #
-    sorted_array = sorted(course_info, key=lambda x: (get_day_number(x[11]), x[12]))
+    sorted_array = sorted(course_info, key=lambda x: (get_day_number(x[DAY]), x[TIME]))
     # Returns a sorted array based on raw list provided #
     return sorted_array
+
 
 # Settle duplicates, filling missing weeks, final cleaning and sorting #
 def further_process_data(table):
     course_table = table
-    extra_table = []
-    to_duplicate = []
     extract_table = course_table[1:]
-    # Create duplicates for sorting by week purposes #
-    for i in range(len(extract_table)):
-        strweeklist = extract_table[i][14]
-        weeklist = []
-        for ele in strweeklist.strip('Teaching Wk').split(','):
-            if '-' in ele:
-                weeklist += list(range(*[int(x)+i for i,x in enumerate(ele.split('-'))]))
-            else:
-                try:
-                    weeklist += [int(ele)]
-                except:
-                    weeklist += [13]
-        to_duplicate.append([i,weeklist])
-    # Adjust duplicates #
-    for d in to_duplicate:
-        temp = []
-        for i in range(len(d[1])):
-            temp_course = extract_table[d[0]]
-            temp.append(temp_course[:14] + ["Teaching Wk"+str(d[1][i])] + temp_course[15:])
-        extra_table.append(temp)
+    # Create a per-week duplicate for every teaching week the course runs #
     main_table = []
-    # Combine all list #
-    for e in extra_table:
-        for m in e:
-            main_table.append(m)
-    course_info = main_table
+    for row in extract_table:
+        weeks = expand_weeks(row[REMARK])
+        if not weeks:
+            weeks = list(range(1, NUM_TEACHING_WEEKS + 1))
+        for week in weeks:
+            main_table.append(row[:REMARK] + ["Teaching Wk" + str(week)] + row[REMARK + 1:])
     # Clean table #
-    course_info = [course for course in course_info if all(course)]
+    course_info = [course for course in main_table if all(course)]
     # Sort by Week -> Day -> Time #
-    sorted_array = sorted(course_info, key=lambda x: (get_week_from_remark(x[14]), get_day_number(x[11]), x[12]))
-    sorted_array.insert(0,course_table[0])
-    # Break up into different sets (by week) #
-    curr = ''
-    prev = ''
+    sorted_array = sorted(
+        course_info,
+        key=lambda x: (get_week_from_remark(x[REMARK]), get_day_number(x[DAY]), x[TIME]),
+    )
+    sorted_array.insert(0, course_table[0])
+    # Break up into different sets (by week), keeping the header row as the first group #
     final_array = []
+    curr = None
     same_week_list = []
     for array in sorted_array:
-        curr = array[14]
-        if curr != prev:
-            prev = curr
-            final_array.append(same_week_list)
+        if array[REMARK] != curr:
+            if same_week_list:
+                final_array.append(same_week_list)
             same_week_list = []
+            curr = array[REMARK]
         same_week_list.append(array)
-    if same_week_list != []:
+    if same_week_list:
         final_array.append(same_week_list)
-        same_week_list = []
-    # Clear empty list at the start #
-    del final_array[0]
     return final_array
+
 
 # Creates a python list, fully sorted and cleaned #
 def create_timetable_list(FILE_NAME):
+    """Create the sorted/cleaned timetable from a STAR Planner HTML file.
+
+    Auto-detects the format: the usual planner (rows of registered courses with
+    a 'Total AU Registered' footer) or the weekly grid view (TIME\\DAY grid +
+    an '@Exam Schedule' course list). Both produce the same per-week structure.
+    """
+    if _is_weekly_format(FILE_NAME):
+        from .ntu_weekly_format_extract import create_weekly_timetable_list
+        try:
+            return create_weekly_timetable_list(FILE_NAME)
+        except (ValueError, IndexError, KeyError):
+            pass  # misclassified; fall back to the standard parser below
     sorted_data = process_data(FILE_NAME)
     final_data = further_process_data(sorted_data)
     return final_data
+
+
+def _is_weekly_format(FILE_NAME):
+    """Sniff whether the HTML is the weekly grid export rather than the usual planner.
+
+    Weekly files carry an '@Exam Schedule' course-list header and never contain
+    the standard 'Total AU Registered' footer; the usual planner is the reverse.
+    (Both formats contain a TIME\\DAY grid, so that alone cannot discriminate.)
+    """
+    content = read_html_file(FILE_NAME)
+    return "@exam schedule" in content.lower() and "total au registered" not in content.lower()
 
 ### -------------------------###
 
 ### Timeline Functions ###
 
 def generate_timeline(start_date):
+    # Returns one list of Mon-Sat dates per teaching week (13 entries) #
     timeline = []
-    num_of_weeks = 14 # Same for every semester
-    sd = start_date.split("/")
-    startday = datetime(int(sd[-1]), int(sd[1][1]) if sd[1][0] == "0" else int(sd[1]), int(sd[0]), 0, 0, 0)   
-    for i in range(num_of_weeks):
-        week = []
-        if i == 0:
-            continue # Skip the first iteration (week 0)
-        elif i >= 8:
-            pass
-        else:
-            i = i-1
-        for j in range(6): # Monday to Saturday
-            date = startday + timedelta(weeks=i,days=j)
-            week.append(date.strftime("%d/%m/%Y"))
-        timeline.append(week)
+    for week in range(1, NUM_TEACHING_WEEKS + 1):
+        week_start = teaching_week_start(week, start_date)
+        week_dates = [(week_start + timedelta(days=j)).strftime("%d/%m/%Y") for j in range(6)]
+        timeline.append(week_dates)
     return timeline
 
-#! CSV / Excel Writing Functions ###
+# CSV / Excel Writing Functions ###
 
-def write_timetable_to_csv(data,raw_data):
+def write_timetable_to_csv(data, raw_data):
     #headers = data[0][0]
     headers = ["","Title","ModuleNo","Time","Venue","Group","ClassType","IndexNo","AU","CourseType","S/U","GERType","Status","Choice","Remark","Exam"]
     data = data[1:]
@@ -217,8 +298,6 @@ def write_timetable_to_csv(data,raw_data):
             sheet.cell(row=1, column=col_idx, value=header)
         for row_idx, row in enumerate(data[week_number-1], start=2):
             for col_idx, cell_value in enumerate(row, start=1):
-                #sheet.cell(row=row_idx, column=col_idx, value=cell_value)
-                #order = [12,2,1,13,14,11,10,7,3,4,5,6,8,9,15,16]
                 if col_idx == 12:
                     sheet.cell(row=row_idx, column=1, value=cell_value)
                 elif col_idx == 2:
@@ -252,7 +331,7 @@ def write_timetable_to_csv(data,raw_data):
                 elif col_idx == 16:
                     sheet.cell(row=row_idx, column=16, value=cell_value)
         # Optionally, you can set a title for the sheet
-        sheet['A1'] = f"Day"
+        sheet['A1'] = "Day"
         # Auto-adjust column width
         for column_cells in sheet.columns:
             max_length = 0
@@ -273,9 +352,9 @@ def write_timetable_to_csv(data,raw_data):
     workbook.remove(workbook['Sheet'])
     workbook.save("weekly_data.xlsx")
 
-def write_to_csv():
-    table = process_html_to_data()
-    with open('Courses.csv', 'w',newline="") as f:
+def write_to_csv(FILE_NAME):
+    table = process_html_to_data(FILE_NAME)
+    with open('Courses.csv', 'w', newline="") as f:
         # create the csv writer
         writer = csv.writer(f)
         # write a row to the csv file
@@ -283,11 +362,6 @@ def write_to_csv():
 
 def color_cells(workbook):
     # Color Coding #
-    color_Mon = '538DD5' # light blue
-    color_Tue = '76933C' # light 
-    color_Wed = 'FABF8F' #
-    color_Thurs = 'B1A0C7' #
-    color_Fri = '366092' #
     n = 13
     week_list = [f'Wk{i}' for i in range(1, n+1)]
     worksheet = workbook["Overview"]
@@ -353,6 +427,3 @@ def create_excel_timetable(FILE_NAME):
     # Organize in Excel #
     workbook = openpyxl.load_workbook("weekly_data.xlsx")
     color_cells(workbook)
- 
-
-

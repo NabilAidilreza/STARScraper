@@ -16,9 +16,12 @@
 ![Demo](https://github.com/NabilAidilreza/NTU_STARS_Project/assets/58650657/97596935-beaa-4098-ba9c-eefd5cbf31ef)  
 
 ## Features  
-- **Generate .ics files**: Import your timetable into Outlook, Google Calendar, or other calendar apps.  
+- **Generate .ics files**: Import your timetable into Outlook, Google Calendar, or other calendar apps. **(Schedule & Exams Dates)**
 - **Compare timetables**: Easily compare schedules with friends.
 - **Check exam schedules**: Easily compare exam dates with friends.
+
+## Latest Update (Aug 2026)
+- **Accepts both standard planner format AND weekly format**
 
 ## Quick Start  
 1. Clone the repo.  
